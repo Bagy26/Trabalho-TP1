@@ -1,41 +1,90 @@
 #include <iostream>
-#include <stdexcept>
-
-#include "dominio/nome.hpp"
-#include "dominio/email.hpp"
-#include "dominio/senha.hpp"
-#include "dominio/papel.hpp"
-#include "dominio/identificador.hpp"
-#include "dominio/texto.hpp"
-#include "dominio/timestamp.hpp"
-#include "dominio/prioridade.hpp"
-#include "dominio/Estado.hpp"
-#include "entidades/Pessoa.hpp"
-#include "entidades/Projeto.hpp"
-#include "entidades/Quadro.hpp"
-#include "entidades/CartaoAtividade.hpp"
-
-
-
-#include <iostream>
-#include "dominio/Email.hpp"
-
-using namespace std;
+#include "sqlite/sqlite3.h"
+#include "containers/Pessoas.hpp"
+#include <vector>
 
 int main() {
 
-    Email email;
+    sqlite3* banco = nullptr;
 
-    try {
-        email.setEmail("ana.silva_123gmail.com");
+    int resultado = sqlite3_open("kanban.db", &banco);
 
-        cout << "Email valido: "
-             << email.getEmail() << endl;
-
-    } catch (const invalid_argument& erro) {
-        cout << erro.what() << endl;
+    if (resultado != SQLITE_OK) {
+        std::cout << "Erro ao abrir banco: "
+                  << sqlite3_errmsg(banco) << std::endl;
+        sqlite3_close(banco);
+        return 1;
     }
 
-    return 0;
-}
+    try {
+        Pessoas pessoas(banco);
 
+        pessoas.criarTabela();
+
+        // Criacao dos atributos de dominio
+        Email email;
+        email.setEmail("teste@gmail.com");
+
+        Nome nome;
+        nome.setNome("Maria Silva");
+
+        Senha senha;
+        senha.setSenha("Abc12");
+
+        Papel papel;
+        papel.setPapel("GESTOR");
+
+        // Criacao da entidade Pessoa
+        Pessoa pessoa;
+        pessoa.setEmail(email);
+        pessoa.setNome(nome);
+        pessoa.setSenha(senha);
+        pessoa.setPapel(papel);
+
+    // Listagem de todas as pessoas cadastradas
+    std::vector<Pessoa> pessoasCadastradas = pessoas.listar();
+
+    std::cout << "\n--- Pessoas cadastradas ---\n";
+
+    for (const Pessoa& pessoa : pessoasCadastradas) {
+        std::cout << "Email: "
+                << pessoa.getEmail().getEmail() << std::endl;
+
+        std::cout << "Nome: "
+                << pessoa.getNome().getNome() << std::endl;
+
+        std::cout << "Papel: "
+                << pessoa.getPapel().getPapel() << std::endl;
+
+        std::cout << "--------------------------\n";
+    }
+
+    // Cadastro no banco
+    // Consulta da pessoa cadastrada anteriormente
+    Email emailConsulta;
+    emailConsulta.setEmail("teste@gmail.com");
+
+    Pessoa pessoaEncontrada = pessoas.consultar(emailConsulta);
+
+    std::cout << "Pessoa encontrada!" << std::endl;
+
+    std::cout << "Email: "
+            << pessoaEncontrada.getEmail().getEmail()
+            << std::endl;
+
+    std::cout << "Nome: "
+            << pessoaEncontrada.getNome().getNome()
+            << std::endl;
+
+    std::cout << "Papel: "
+            << pessoaEncontrada.getPapel().getPapel()
+            << std::endl;
+
+        } catch (const std::exception& erro) {
+            std::cout << "Erro: " << erro.what() << std::endl;
+        }
+
+        sqlite3_close(banco);
+
+        return 0;
+    }

@@ -4,6 +4,7 @@
 #include "../dominio/identificador.hpp"
 #include "../dominio/nome.hpp"
 #include "../dominio/Limite.hpp"
+#include "../dominio/identificador.hpp"
 
 #include <stdexcept>
 
@@ -20,6 +21,7 @@ private:
     Identificador identificador;
     Nome nome;
     Limite limite;
+    Identificador projeto;
 
     bool identificadorDefinido = false;
 
@@ -75,6 +77,14 @@ public:
      */
     const Limite& getLimite() const {
         return limite;
+    }
+
+    void setProjeto(const Identificador& novoProjeto) {
+        projeto = novoProjeto;
+    }
+
+    const Identificador& getProjeto() const {
+        return projeto;
     }
 };
 

@@ -23,10 +23,25 @@ private:
     Nome nome;
     Senha senha;
     Papel papel;
+    Email gestor;
 
     bool emailDefinido = false;
 
 public:
+    /**
+ * @brief Define o gestor responsável pelo projeto.
+ * @param novoGestor Email do gestor.
+ */
+    void setGestor(const Email& novoGestor) {
+        gestor = novoGestor;
+    }
+
+    /**
+     * @brief Retorna o email do gestor responsável.
+     */
+    const Email& getGestor() const {
+        return gestor;
+    }
 
     /**
      * @brief Define o email da pessoa.

@@ -22,17 +22,67 @@
 class CartaoAtividade {
 private:
 
+    private:
+    /**
+     * @brief Identificador único do cartão de atividade.
+     */
     Identificador identificador;
+
+    /**
+     * @brief Nome do cartão de atividade.
+     */
     Nome nome;
+
+    /**
+     * @brief Descrição das atividades que devem ser realizadas.
+     */
     Texto descricao;
+
+    /**
+     * @brief Prioridade atribuída ao cartão.
+     */
     Prioridade prioridade;
+
+    /**
+     * @brief Estado atual do cartão no fluxo Kanban.
+     */
     Estado estado;
+
+    /**
+     * @brief Tamanho estimado da atividade.
+     */
     Tamanho tamanho;
+
+    /**
+     * @brief Data e horário de entrada do cartão na coluna A FAZER.
+     */
     Timestamp entrada;
+
+    /**
+     * @brief Data e horário de início da execução da atividade.
+     */
     Timestamp inicio;
+
+    /**
+     * @brief Data e horário de conclusão da atividade.
+     */
     Timestamp termino;
 
+    /**
+     * @brief Email da pessoa responsável pelo desenvolvimento do cartão.
+     */
+    Email desenvolvedor;
+
+    /**
+     * @brief Identificador do quadro ao qual o cartão pertence.
+     */
+    Identificador quadro;
+
+    /**
+     * @brief Indica se o identificador do cartão já foi definido.
+     */
     bool identificadorDefinido = false;
+
 
 public:
 
@@ -171,6 +221,40 @@ public:
     const Timestamp& getTermino() const {
         return termino;
     }
+
+    /**
+     * @brief Define o desenvolvedor responsável pelo cartão.
+     * @param novoDesenvolvedor Email da pessoa responsável.
+     */
+    void setDesenvolvedor(const Email& novoDesenvolvedor) {
+        desenvolvedor = novoDesenvolvedor;
+    }
+
+    /**
+     * @brief Retorna o email do desenvolvedor responsável.
+     * @return Referência constante para o email do desenvolvedor.
+     */
+    const Email& getDesenvolvedor() const {
+        return desenvolvedor;
+    }
+
+    /**
+     * @brief Define o quadro ao qual o cartão pertence.
+     * @param novoQuadro Identificador do quadro associado.
+     */
+    void setQuadro(const Identificador& novoQuadro) {
+        quadro = novoQuadro;
+    }
+
+    /**
+     * @brief Retorna o identificador do quadro associado.
+     * @return Referência constante para o identificador do quadro.
+     */
+    const Identificador& getQuadro() const {
+        return quadro;
+    }
+
+
 };
 
 #endif
