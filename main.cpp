@@ -2,6 +2,7 @@
 #include "sqlite/sqlite3.h"
 #include "containers/Pessoas.hpp"
 #include <vector>
+#include "containers/Projetos.hpp"
 
 int main() {
 
@@ -15,7 +16,13 @@ int main() {
         sqlite3_close(banco);
         return 1;
     }
-
+    if (sqlite3_exec(banco, "PRAGMA foreign_keys = ON;",
+                 nullptr, nullptr, nullptr) != SQLITE_OK) {
+    std::cerr << "Erro ao ativar chaves estrangeiras: "
+              << sqlite3_errmsg(banco) << std::endl;
+    sqlite3_close(banco);
+    return 1;
+}
     try {
         Pessoas pessoas(banco);
 
@@ -40,6 +47,10 @@ int main() {
         pessoa.setNome(nome);
         pessoa.setSenha(senha);
         pessoa.setPapel(papel);
+        Projetos projetos(banco);
+
+        projetos.criarTabela();
+        std::cout << "Tabela Projetos criada com sucesso!" << std::endl;
 
     // Listagem de todas as pessoas cadastradas
     std::vector<Pessoa> pessoasCadastradas = pessoas.listar();
