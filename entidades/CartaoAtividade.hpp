@@ -8,6 +8,7 @@
 #include "../dominio/Estado.hpp"
 #include "../dominio/Tamanho.hpp"
 #include "../dominio/timestamp.hpp"
+#include "../dominio/email.hpp"
 
 #include <stdexcept>
 
@@ -21,8 +22,6 @@
  */
 class CartaoAtividade {
 private:
-
-    private:
     /**
      * @brief Identificador único do cartão de atividade.
      */

@@ -1,3 +1,4 @@
+
 #ifndef PESSOAS_HPP
 #define PESSOAS_HPP
 
@@ -49,11 +50,7 @@ public:
         char* mensagemErro = nullptr;
 
         int resultado = sqlite3_exec(
-            banco,
-            sql,
-            nullptr,
-            nullptr,
-            &mensagemErro
+            banco, sql, nullptr, nullptr, &mensagemErro
         );
 
         if (resultado != SQLITE_OK) {
@@ -62,14 +59,12 @@ public:
                 : "Erro ao criar tabela Pessoas.";
 
             sqlite3_free(mensagemErro);
-
             throw std::runtime_error(mensagem);
         }
     }
+
     /**
      * @brief Insere uma pessoa no banco de dados.
-     * @param pessoa Entidade Pessoa que sera cadastrada.
-     * @throw std::runtime_error Caso ocorra erro durante a insercao.
      */
     void inserir(const Pessoa& pessoa) {
 
@@ -80,18 +75,13 @@ public:
         sqlite3_stmt* comando = nullptr;
 
         int resultado = sqlite3_prepare_v2(
-            banco,
-            sql,
-            -1,
-            &comando,
-            nullptr
+            banco, sql, -1, &comando, nullptr
         );
 
         if (resultado != SQLITE_OK) {
             throw std::runtime_error(sqlite3_errmsg(banco));
         }
 
-        // Associa os valores da entidade aos parametros SQL.
         resultado = sqlite3_bind_text(
             comando, 1, pessoa.getEmail().getEmail().c_str(),
             -1, SQLITE_TRANSIENT
@@ -124,7 +114,6 @@ public:
             throw std::runtime_error(mensagem);
         }
 
-        // Executa a insercao.
         resultado = sqlite3_step(comando);
 
         if (resultado != SQLITE_DONE) {
@@ -145,9 +134,6 @@ public:
 
     /**
      * @brief Consulta uma pessoa pelo email.
-     * @param email Email da pessoa que sera consultada.
-     * @return Entidade Pessoa encontrada no banco de dados.
-     * @throw std::runtime_error Caso a pessoa nao exista ou ocorra erro na consulta.
      */
     Pessoa consultar(const Email& email) {
 
@@ -230,8 +216,6 @@ public:
 
     /**
      * @brief Lista todas as pessoas cadastradas.
-     * @return Vetor contendo as pessoas armazenadas.
-     * @throw std::runtime_error Caso ocorra erro na consulta.
      */
     std::vector<Pessoa> listar() {
 
@@ -287,6 +271,129 @@ public:
         sqlite3_finalize(comando);
 
         return pessoasEncontradas;
+    }
+
+    /**
+     * @brief Atualiza os dados de uma pessoa.
+     * O email, que e a chave primaria, nao pode ser alterado.
+     */
+    void atualizar(const Pessoa& pessoa) {
+
+        const char* sql =
+            "UPDATE Pessoas SET nome = ?, senha = ?, papel = ? "
+            "WHERE email = ?;";
+
+        sqlite3_stmt* comando = nullptr;
+
+        int resultado = sqlite3_prepare_v2(
+            banco, sql, -1, &comando, nullptr
+        );
+
+        if (resultado != SQLITE_OK) {
+            throw std::runtime_error(sqlite3_errmsg(banco));
+        }
+
+        resultado = sqlite3_bind_text(
+            comando, 1, pessoa.getNome().getNome().c_str(),
+            -1, SQLITE_TRANSIENT
+        );
+
+        if (resultado == SQLITE_OK) {
+            resultado = sqlite3_bind_text(
+                comando, 2, pessoa.getSenha().getSenha().c_str(),
+                -1, SQLITE_TRANSIENT
+            );
+        }
+
+        if (resultado == SQLITE_OK) {
+            resultado = sqlite3_bind_text(
+                comando, 3, pessoa.getPapel().getPapel().c_str(),
+                -1, SQLITE_TRANSIENT
+            );
+        }
+
+        if (resultado == SQLITE_OK) {
+            resultado = sqlite3_bind_text(
+                comando, 4, pessoa.getEmail().getEmail().c_str(),
+                -1, SQLITE_TRANSIENT
+            );
+        }
+
+        if (resultado != SQLITE_OK) {
+            std::string mensagem = sqlite3_errmsg(banco);
+            sqlite3_finalize(comando);
+            throw std::runtime_error(mensagem);
+        }
+
+        resultado = sqlite3_step(comando);
+
+        if (resultado != SQLITE_DONE) {
+            std::string mensagem = sqlite3_errmsg(banco);
+            sqlite3_finalize(comando);
+            throw std::runtime_error(
+                "Erro ao atualizar pessoa: " + mensagem
+            );
+        }
+
+        int alteracoes = sqlite3_changes(banco);
+
+        sqlite3_finalize(comando);
+
+        if (alteracoes == 0) {
+            throw std::runtime_error(
+                "Pessoa nao encontrada ou nenhum dado foi alterado."
+            );
+        }
+    }
+
+    /**
+     * @brief Remove uma pessoa pelo email.
+     * A exclusao sera impedida se houver projetos ou cartoes
+     * associados a essa pessoa.
+     */
+    void remover(const Email& email) {
+
+        const char* sql =
+            "DELETE FROM Pessoas WHERE email = ?;";
+
+        sqlite3_stmt* comando = nullptr;
+
+        int resultado = sqlite3_prepare_v2(
+            banco, sql, -1, &comando, nullptr
+        );
+
+        if (resultado != SQLITE_OK) {
+            throw std::runtime_error(sqlite3_errmsg(banco));
+        }
+
+        resultado = sqlite3_bind_text(
+            comando, 1, email.getEmail().c_str(),
+            -1, SQLITE_TRANSIENT
+        );
+
+        if (resultado != SQLITE_OK) {
+            std::string mensagem = sqlite3_errmsg(banco);
+            sqlite3_finalize(comando);
+            throw std::runtime_error(mensagem);
+        }
+
+        resultado = sqlite3_step(comando);
+
+        if (resultado != SQLITE_DONE) {
+            std::string mensagem = sqlite3_errmsg(banco);
+            sqlite3_finalize(comando);
+            throw std::runtime_error(
+                "Erro ao remover pessoa: " + mensagem
+            );
+        }
+
+        int alteracoes = sqlite3_changes(banco);
+
+        sqlite3_finalize(comando);
+
+        if (alteracoes == 0) {
+            throw std::runtime_error("Pessoa nao encontrada.");
+        }
     }
 };
 
