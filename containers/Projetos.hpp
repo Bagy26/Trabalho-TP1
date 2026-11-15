@@ -1,3 +1,4 @@
+
 #ifndef PROJETOS_HPP
 #define PROJETOS_HPP
 
@@ -6,13 +7,13 @@
 
 #include <stdexcept>
 #include <string>
-
 #include <vector>
 
 /**
  * @brief Gerencia o armazenamento de projetos no banco SQLite.
  */
 class Projetos {
+
 private:
 
     /**
@@ -27,6 +28,7 @@ public:
      * @param conexao Ponteiro para uma conexao aberta.
      */
     explicit Projetos(sqlite3* conexao) {
+
         if (conexao == nullptr) {
             throw std::invalid_argument("Conexao com o banco invalida.");
         }
@@ -36,7 +38,6 @@ public:
 
     /**
      * @brief Cria a tabela de projetos no banco de dados.
-     * @throw std::runtime_error Caso ocorra erro na criacao.
      */
     void criarTabela() {
 
@@ -63,6 +64,7 @@ public:
         );
 
         if (resultado != SQLITE_OK) {
+
             std::string mensagem = mensagemErro
                 ? mensagemErro
                 : "Erro ao criar tabela Projetos.";
@@ -76,7 +78,6 @@ public:
     /**
      * @brief Insere um projeto no banco de dados.
      * @param projeto Entidade Projeto que sera cadastrada.
-     * @throw std::runtime_error Caso ocorra erro durante a insercao.
      */
     void inserir(const Projeto& projeto) {
 
@@ -142,14 +143,18 @@ public:
         }
 
         if (resultado != SQLITE_OK) {
+
             std::string mensagem = sqlite3_errmsg(banco);
+
             sqlite3_finalize(comando);
+
             throw std::runtime_error(mensagem);
         }
 
         resultado = sqlite3_step(comando);
 
         if (resultado != SQLITE_DONE) {
+
             std::string mensagem;
 
             if (resultado == SQLITE_CONSTRAINT) {
@@ -159,6 +164,7 @@ public:
             }
 
             sqlite3_finalize(comando);
+
             throw std::runtime_error(mensagem);
         }
 
@@ -168,8 +174,7 @@ public:
     /**
      * @brief Consulta um projeto pelo identificador.
      * @param identificador Identificador do projeto procurado.
-     * @return Entidade Projeto encontrada no banco de dados.
-     * @throw std::runtime_error Caso o projeto nao exista ou ocorra erro na consulta.
+     * @return Entidade Projeto encontrada.
      */
     Projeto consultar(const Identificador& identificador) {
 
@@ -194,20 +199,25 @@ public:
         );
 
         if (resultado != SQLITE_OK) {
+
             std::string mensagem = sqlite3_errmsg(banco);
+
             sqlite3_finalize(comando);
+
             throw std::runtime_error(mensagem);
         }
 
         resultado = sqlite3_step(comando);
 
         if (resultado != SQLITE_ROW) {
+
             std::string mensagem =
                 resultado == SQLITE_DONE
                 ? "Projeto nao encontrado."
                 : sqlite3_errmsg(banco);
 
             sqlite3_finalize(comando);
+
             throw std::runtime_error(mensagem);
         }
 
@@ -267,94 +277,255 @@ public:
         return projeto;
     }
 
-
     /**
-     * @brief Lista todos os projetos cadastrados no banco de dados.
-     *
-     * @return Vetor contendo as entidades Projeto encontradas.
-     * @throws std::runtime_error Caso ocorra erro na consulta.
+     * @brief Lista todos os projetos cadastrados.
+     * @return Vetor contendo os projetos encontrados.
      */
     std::vector<Projeto> listar() {
 
-    const char* sql =
-        "SELECT identificador, nome, descricao, inicio, termino, gestor "
-        "FROM Projetos;";
+        const char* sql =
+            "SELECT identificador, nome, descricao, inicio, termino, gestor "
+            "FROM Projetos;";
 
-    sqlite3_stmt* stmt = nullptr;
+        sqlite3_stmt* stmt = nullptr;
 
-    if (sqlite3_prepare_v2(banco, sql, -1, &stmt, nullptr) != SQLITE_OK) {
-        throw std::runtime_error(
-            "Erro ao preparar consulta de projetos: " +
-            std::string(sqlite3_errmsg(banco))
-        );
-    }
+        if (sqlite3_prepare_v2(
+            banco, sql, -1, &stmt, nullptr
+        ) != SQLITE_OK) {
 
-    std::vector<Projeto> projetos;
+            throw std::runtime_error(
+                "Erro ao preparar consulta de projetos: " +
+                std::string(sqlite3_errmsg(banco))
+            );
+        }
 
-    int resultado;
+        std::vector<Projeto> projetos;
 
-    while ((resultado = sqlite3_step(stmt)) == SQLITE_ROW) {
+        int resultado;
 
-        // Recuperação dos dados do banco
-        Identificador identificador;
-        identificador.setIdentificador(
-            reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0))
-        );
+        while ((resultado = sqlite3_step(stmt)) == SQLITE_ROW) {
 
-        Nome nome;
-        nome.setNome(
-            reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1))
-        );
+            Identificador identificador;
+            identificador.setIdentificador(
+                reinterpret_cast<const char*>(
+                    sqlite3_column_text(stmt, 0)
+                )
+            );
 
-        Texto descricao;
-        descricao.setTexto(
-            reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2))
-        );
+            Nome nome;
+            nome.setNome(
+                reinterpret_cast<const char*>(
+                    sqlite3_column_text(stmt, 1)
+                )
+            );
 
-        Timestamp inicio;
-        inicio.setTimestamp(
-            reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3))
-        );
+            Texto descricao;
+            descricao.setTexto(
+                reinterpret_cast<const char*>(
+                    sqlite3_column_text(stmt, 2)
+                )
+            );
 
-        Timestamp termino;
-        termino.setTimestamp(
-            reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4))
-        );
+            Timestamp inicio;
+            inicio.setTimestamp(
+                reinterpret_cast<const char*>(
+                    sqlite3_column_text(stmt, 3)
+                )
+            );
 
-        Email gestor;
-        gestor.setEmail(
-            reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5))
-        );
+            Timestamp termino;
+            termino.setTimestamp(
+                reinterpret_cast<const char*>(
+                    sqlite3_column_text(stmt, 4)
+                )
+            );
 
-        // Reconstrução da entidade Projeto
-        Projeto projeto;
+            Email gestor;
+            gestor.setEmail(
+                reinterpret_cast<const char*>(
+                    sqlite3_column_text(stmt, 5)
+                )
+            );
 
-        projeto.setIdentificador(identificador);
-        projeto.setNome(nome);
-        projeto.setDescricao(descricao);
-        projeto.setInicio(inicio);
-        projeto.setTermino(termino);
-        projeto.setGestor(gestor);
+            Projeto projeto;
 
-        projetos.push_back(projeto);
-    }
+            projeto.setIdentificador(identificador);
+            projeto.setNome(nome);
+            projeto.setDescricao(descricao);
+            projeto.setInicio(inicio);
+            projeto.setTermino(termino);
+            projeto.setGestor(gestor);
+
+            projetos.push_back(projeto);
+        }
 
         if (resultado != SQLITE_DONE) {
 
-        std::string mensagemErro = sqlite3_errmsg(banco);
+            std::string mensagem = sqlite3_errmsg(banco);
 
-        sqlite3_finalize(stmt);
+            sqlite3_finalize(stmt);
 
-        throw std::runtime_error(
-            "Erro ao listar projetos: " + mensagemErro
-        );
-    }
+            throw std::runtime_error(
+                "Erro ao listar projetos: " + mensagem
+            );
+        }
 
         sqlite3_finalize(stmt);
 
         return projetos;
     }
 
+    /**
+     * @brief Atualiza os dados de um projeto existente.
+     * @param projeto Projeto com os novos dados.
+     */
+    void atualizar(const Projeto& projeto) {
+
+        const char* sql =
+            "UPDATE Projetos SET "
+            "nome = ?, descricao = ?, inicio = ?, termino = ?, gestor = ? "
+            "WHERE identificador = ?;";
+
+        sqlite3_stmt* comando = nullptr;
+
+        int resultado = sqlite3_prepare_v2(
+            banco, sql, -1, &comando, nullptr
+        );
+
+        if (resultado != SQLITE_OK) {
+            throw std::runtime_error(sqlite3_errmsg(banco));
+        }
+
+        resultado = sqlite3_bind_text(
+            comando, 1,
+            projeto.getNome().getNome().c_str(),
+            -1, SQLITE_TRANSIENT
+        );
+
+        if (resultado == SQLITE_OK) {
+            resultado = sqlite3_bind_text(
+                comando, 2,
+                projeto.getDescricao().getTexto().c_str(),
+                -1, SQLITE_TRANSIENT
+            );
+        }
+
+        if (resultado == SQLITE_OK) {
+            resultado = sqlite3_bind_text(
+                comando, 3,
+                projeto.getInicio().getTimestamp().c_str(),
+                -1, SQLITE_TRANSIENT
+            );
+        }
+
+        if (resultado == SQLITE_OK) {
+            resultado = sqlite3_bind_text(
+                comando, 4,
+                projeto.getTermino().getTimestamp().c_str(),
+                -1, SQLITE_TRANSIENT
+            );
+        }
+
+        if (resultado == SQLITE_OK) {
+            resultado = sqlite3_bind_text(
+                comando, 5,
+                projeto.getGestor().getEmail().c_str(),
+                -1, SQLITE_TRANSIENT
+            );
+        }
+
+        if (resultado == SQLITE_OK) {
+            resultado = sqlite3_bind_text(
+                comando, 6,
+                projeto.getIdentificador().getIdentificador().c_str(),
+                -1, SQLITE_TRANSIENT
+            );
+        }
+
+        if (resultado != SQLITE_OK) {
+
+            std::string mensagem = sqlite3_errmsg(banco);
+
+            sqlite3_finalize(comando);
+
+            throw std::runtime_error(mensagem);
+        }
+
+        resultado = sqlite3_step(comando);
+
+        if (resultado != SQLITE_DONE) {
+
+            std::string mensagem = sqlite3_errmsg(banco);
+
+            sqlite3_finalize(comando);
+
+            throw std::runtime_error(mensagem);
+        }
+
+        if (sqlite3_changes(banco) == 0) {
+
+            sqlite3_finalize(comando);
+
+            throw std::runtime_error("Projeto nao encontrado.");
+        }
+
+        sqlite3_finalize(comando);
+    }
+
+    /**
+     * @brief Remove um projeto pelo identificador.
+     * @param identificador Identificador do projeto.
+     */
+    void remover(const Identificador& identificador) {
+
+        const char* sql =
+            "DELETE FROM Projetos WHERE identificador = ?;";
+
+        sqlite3_stmt* comando = nullptr;
+
+        int resultado = sqlite3_prepare_v2(
+            banco, sql, -1, &comando, nullptr
+        );
+
+        if (resultado != SQLITE_OK) {
+            throw std::runtime_error(sqlite3_errmsg(banco));
+        }
+
+        resultado = sqlite3_bind_text(
+            comando, 1,
+            identificador.getIdentificador().c_str(),
+            -1, SQLITE_TRANSIENT
+        );
+
+        if (resultado != SQLITE_OK) {
+
+            std::string mensagem = sqlite3_errmsg(banco);
+
+            sqlite3_finalize(comando);
+
+            throw std::runtime_error(mensagem);
+        }
+
+        resultado = sqlite3_step(comando);
+
+        if (resultado != SQLITE_DONE) {
+
+            std::string mensagem = sqlite3_errmsg(banco);
+
+            sqlite3_finalize(comando);
+
+            throw std::runtime_error(mensagem);
+        }
+
+        if (sqlite3_changes(banco) == 0) {
+
+            sqlite3_finalize(comando);
+
+            throw std::runtime_error("Projeto nao encontrado.");
+        }
+
+        sqlite3_finalize(comando);
+    }
 
 };
 
