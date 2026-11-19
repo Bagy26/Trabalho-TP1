@@ -5,15 +5,18 @@
 #include <string>
 #include <stdexcept>
 
-class Estado {
+class Estado
+{
 private:
     std::string valor;
 
 public:
-    void setEstado(std::string novoEstado) {
+    void setEstado(std::string novoEstado)
+    {
         if (novoEstado != "A FAZER" &&
             novoEstado != "FAZENDO" &&
-            novoEstado != "FEITO") {
+            novoEstado != "FEITO")
+        {
 
             throw std::invalid_argument("Estado invalido");
         }
@@ -21,7 +24,8 @@ public:
         valor = novoEstado;
     }
 
-    std::string getEstado() const {
+    std::string getEstado() const
+    {
         return valor;
     }
 };
