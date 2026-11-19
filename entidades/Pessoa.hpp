@@ -12,32 +12,50 @@
  * @class Pessoa
  * @brief Representa uma pessoa cadastrada no sistema Kanban.
  *
- * Uma pessoa pode exercer o papel de gestor ou desenvolvedor.
- * O email é utilizado como chave primária e não pode ser
- * alterado depois de definido.
+ * Cada pessoa possui um email único, nome, senha e papel
+ * no sistema (GESTOR ou DESENVOLVEDOR).
  */
-class Pessoa {
+class Pessoa
+{
 private:
-
+    /**
+     * @brief Email único da pessoa.
+     */
     Email email;
+
+    /**
+     * @brief Nome da pessoa.
+     */
     Nome nome;
+
+    /**
+     * @brief Senha de acesso da pessoa.
+     */
     Senha senha;
+
+    /**
+     * @brief Papel da pessoa no sistema.
+     */
     Papel papel;
 
+    /**
+     * @brief Indica se o email já foi definido.
+     */
     bool emailDefinido = false;
 
 public:
     /**
      * @brief Define o email da pessoa.
      * @param novoEmail Email validado.
-     * @throw std::invalid_argument Caso o email já tenha sido definido.
+     * @throw std::invalid_argument Caso já tenha sido definido.
      */
-    void setEmail(const Email& novoEmail) {
+    void setEmail(const Email &novoEmail)
+    {
 
-        if (emailDefinido) {
+        if (emailDefinido)
+        {
             throw std::invalid_argument(
-                "O email nao pode ser alterado."
-            );
+                "O email nao pode ser alterado.");
         }
 
         email = novoEmail;
@@ -48,7 +66,8 @@ public:
      * @brief Retorna o email da pessoa.
      * @return Referência constante para o email.
      */
-    const Email& getEmail() const {
+    const Email &getEmail() const
+    {
         return email;
     }
 
@@ -56,7 +75,8 @@ public:
      * @brief Define o nome da pessoa.
      * @param novoNome Nome validado.
      */
-    void setNome(const Nome& novoNome) {
+    void setNome(const Nome &novoNome)
+    {
         nome = novoNome;
     }
 
@@ -64,7 +84,8 @@ public:
      * @brief Retorna o nome da pessoa.
      * @return Referência constante para o nome.
      */
-    const Nome& getNome() const {
+    const Nome &getNome() const
+    {
         return nome;
     }
 
@@ -72,7 +93,8 @@ public:
      * @brief Define a senha da pessoa.
      * @param novaSenha Senha validada.
      */
-    void setSenha(const Senha& novaSenha) {
+    void setSenha(const Senha &novaSenha)
+    {
         senha = novaSenha;
     }
 
@@ -80,15 +102,17 @@ public:
      * @brief Retorna a senha da pessoa.
      * @return Referência constante para a senha.
      */
-    const Senha& getSenha() const {
+    const Senha &getSenha() const
+    {
         return senha;
     }
 
     /**
-     * @brief Define o papel da pessoa.
+     * @brief Define o papel da pessoa no sistema.
      * @param novoPapel Papel validado.
      */
-    void setPapel(const Papel& novoPapel) {
+    void setPapel(const Papel &novoPapel)
+    {
         papel = novoPapel;
     }
 
@@ -96,7 +120,8 @@ public:
      * @brief Retorna o papel da pessoa.
      * @return Referência constante para o papel.
      */
-    const Papel& getPapel() const {
+    const Papel &getPapel() const
+    {
         return papel;
     }
 };

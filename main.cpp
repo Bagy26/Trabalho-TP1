@@ -19,6 +19,14 @@
 #include "containers/CartoesAtividades.hpp"
 
 #include "servicos/ServicoCartoesAtividades.hpp"
+#include "servicos/ServicoPessoas.hpp"
+#include "servicos/ServicoProjetos.hpp"
+#include "servicos/ServicoQuadros.hpp"
+
+#include "controladoras/ControladoraPessoas.hpp"
+#include "controladoras/ControladoraProjetos.hpp"
+#include "controladoras/ControladoraQuadros.hpp"
+#include "controladoras/ControladoraCartoesAtividades.hpp"
 
 int main()
 {
@@ -93,6 +101,23 @@ int main()
         cartoes.criarTabela();
 
         ServicoCartoesAtividades servicoCartoes(cartoes, quadros);
+
+        // =========================================
+        // CRIACAO DOS DEMAIS SERVICOS
+        // =========================================
+
+        ServicoPessoas servicoPessoas(pessoas);
+        ServicoProjetos servicoProjetos(projetos);
+        ServicoQuadros servicoQuadros(quadros);
+
+        // =========================================
+        // CRIACAO DAS CONTROLADORAS
+        // =========================================
+
+        ControladoraPessoas controladoraPessoas(servicoPessoas);
+        ControladoraProjetos controladoraProjetos(servicoProjetos);
+        ControladoraQuadros controladoraQuadros(servicoQuadros);
+        ControladoraCartoesAtividades controladoraCartoes(servicoCartoes);
 
         // =========================================
         // CRIAÇÃO DO QUADRO DE TESTE

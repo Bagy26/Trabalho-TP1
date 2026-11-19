@@ -174,9 +174,10 @@ public:
 
     void cadastrar(const CartaoAtividade &cartao) override
     {
-        if (cartao.getEstado().getEstado() == "FAZENDO")
+        if (cartao.getEstado().getEstado() != "A FAZER")
         {
-            validarLimiteWIP(cartao);
+            throw std::invalid_argument(
+                "Todo cartao deve ser cadastrado em A FAZER.");
         }
 
         repositorio.inserir(cartao);
@@ -198,22 +199,15 @@ public:
         CartaoAtividade atual =
             repositorio.consultar(cartao.getIdentificador());
 
-        bool entrandoEmFazendo =
-            cartao.getEstado().getEstado() == "FAZENDO" &&
-            (atual.getEstado().getEstado() != "FAZENDO" ||
-             atual.getQuadro().getIdentificador() !=
-                 cartao.getQuadro().getIdentificador());
-
-        if (entrandoEmFazendo)
+        if (atual.getEstado().getEstado() !=
+            cartao.getEstado().getEstado())
         {
-            validarLimiteWIP(
-                cartao,
-                cartao.getIdentificador().getIdentificador());
+            throw std::invalid_argument(
+                "Utilize o metodo mover para alterar o estado.");
         }
 
         repositorio.atualizar(cartao);
     }
-
     void remover(const Identificador &identificador) override
     {
         repositorio.remover(identificador);
