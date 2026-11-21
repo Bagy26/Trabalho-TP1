@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 #include "../dominio/papel.hpp"
+#include <vector>
+#include "../entidades/Pessoa.hpp"
 
 class TelaPrincipal
 {
@@ -56,6 +58,50 @@ public:
         int opcao;
         cin >> opcao;
         return opcao;
+    }
+
+    /**
+     * @brief Exibe a lista de pessoas cadastradas.
+     * @param pessoas Vetor de pessoas cadastradas.
+     */
+    void exibirPessoas(const std::vector<Pessoa> &pessoas)
+    {
+        std::cout << "\n========== PESSOAS CADASTRADAS ==========\n";
+
+        if (pessoas.empty())
+        {
+            std::cout << "Nenhuma pessoa cadastrada.\n";
+            return;
+        }
+
+        for (const Pessoa &pessoa : pessoas)
+        {
+            std::cout << "Nome: "
+                      << pessoa.getNome().getNome() << "\n";
+
+            std::cout << "Email: "
+                      << pessoa.getEmail().getEmail() << "\n";
+
+            std::cout << "Papel: "
+                      << pessoa.getPapel().getPapel() << "\n";
+
+            std::cout << "----------------------------------------\n";
+        }
+    }
+
+    /**
+     * @brief Exibe o menu de gerenciamento de pessoas.
+     */
+    void exibirMenuPessoas()
+    {
+        std::cout << "\n========== GERENCIAMENTO DE PESSOAS ==========\n";
+        std::cout << "1 - Cadastrar pessoa\n";
+        std::cout << "2 - Consultar pessoa\n";
+        std::cout << "3 - Listar pessoas\n";
+        std::cout << "4 - Atualizar pessoa\n";
+        std::cout << "5 - Remover pessoa\n";
+        std::cout << "0 - Voltar ao menu principal\n";
+        std::cout << "Escolha uma opcao: ";
     }
 };
 

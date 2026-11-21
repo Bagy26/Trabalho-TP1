@@ -28,6 +28,8 @@
 #include "controladoras/ControladoraQuadros.hpp"
 #include "controladoras/ControladoraCartoesAtividades.hpp"
 
+#include "apresentacao/TelaPrincipal.hpp"
+
 int main()
 {
 
@@ -634,7 +636,282 @@ int main()
         std::cout << "Papel: "
                   << pessoaEncontrada.getPapel().getPapel()
                   << std::endl;
+
+        // =========================================
+        // 8. EXIBICAO DO MENU PRINCIPAL
+        // =========================================
+
+        TelaPrincipal tela;
+
+        tela.setPapelUsuario(pessoaEncontrada.getPapel());
+
+        int opcao;
+
+        do
+        {
+            tela.exibirMenu();
+            opcao = tela.lerOpcao();
+
+            switch (opcao)
+            {
+            case 1:
+            {
+                int opcaoPessoas;
+
+                do
+                {
+                    tela.exibirMenuPessoas();
+                    opcaoPessoas = tela.lerOpcao();
+
+                    switch (opcaoPessoas)
+                    {
+                    case 1:
+                    {
+                        std::string emailInformado;
+                        std::string nomeInformado;
+                        std::string senhaInformada;
+                        std::string papelInformado;
+
+                        try
+                        {
+                            Pessoa novaPessoa;
+
+                            std::cout << "\n========== CADASTRO DE PESSOA ==========\n";
+
+                            std::cout << "Email: ";
+                            std::cin >> emailInformado;
+
+                            Email email;
+                            email.setEmail(emailInformado);
+                            novaPessoa.setEmail(email);
+
+                            std::cin.ignore();
+
+                            std::cout << "Nome: ";
+                            std::getline(std::cin, nomeInformado);
+
+                            Nome nome;
+                            nome.setNome(nomeInformado);
+                            novaPessoa.setNome(nome);
+
+                            std::cout << "Senha (5 caracteres): ";
+                            std::cin >> senhaInformada;
+
+                            Senha senha;
+                            senha.setSenha(senhaInformada);
+                            novaPessoa.setSenha(senha);
+
+                            std::cout << "Papel (GESTOR ou DESENVOLVEDOR): ";
+                            std::cin >> papelInformado;
+
+                            Papel papel;
+                            papel.setPapel(papelInformado);
+                            novaPessoa.setPapel(papel);
+
+                            controladoraPessoas.cadastrar(
+                                pessoaEncontrada.getPapel(), novaPessoa);
+
+                            std::cout << "\nPessoa cadastrada com sucesso!\n";
+                        }
+                        catch (const std::exception &erro)
+                        {
+                            std::cout << "\nErro no cadastro: "
+                                      << erro.what() << std::endl;
+                        }
+
+                        break;
+                    }
+
+                    case 2:
+                    {
+                        std::string emailInformado;
+
+                        std::cout << "\nDigite o email da pessoa: ";
+                        std::cin >> emailInformado;
+
+                        try
+                        {
+                            Email email;
+                            email.setEmail(emailInformado);
+
+                            Pessoa pessoaConsultada =
+                                controladoraPessoas.consultar(
+                                    pessoaEncontrada.getPapel(), email);
+
+                            std::cout << "\n========== PESSOA ENCONTRADA ==========\n";
+                            std::cout << "Nome: "
+                                      << pessoaConsultada.getNome().getNome() << "\n";
+                            std::cout << "Email: "
+                                      << pessoaConsultada.getEmail().getEmail() << "\n";
+                            std::cout << "Papel: "
+                                      << pessoaConsultada.getPapel().getPapel() << "\n";
+                        }
+                        catch (const std::exception &erro)
+                        {
+                            std::cout << "Erro: " << erro.what() << std::endl;
+                        }
+
+                        break;
+                    }
+
+                    case 3:
+                    {
+                        std::vector<Pessoa> pessoasCadastradas =
+                            controladoraPessoas.listar(pessoaEncontrada.getPapel());
+
+                        tela.exibirPessoas(pessoasCadastradas);
+                        break;
+                    }
+
+                    case 4:
+                    {
+                        std::string emailInformado;
+                        std::string novoNome;
+                        std::string novaSenha;
+                        std::string novoPapel;
+
+                        try
+                        {
+                            std::cout << "\n========== ATUALIZAR PESSOA ==========\n";
+
+                            std::cout << "Digite o email da pessoa: ";
+                            std::cin >> emailInformado;
+
+                            Email email;
+                            email.setEmail(emailInformado);
+
+                            Pessoa pessoaAtualizada =
+                                controladoraPessoas.consultar(
+                                    pessoaEncontrada.getPapel(), email);
+
+                            std::cin.ignore();
+
+                            std::cout << "Novo nome: ";
+                            std::getline(std::cin, novoNome);
+
+                            Nome nome;
+                            nome.setNome(novoNome);
+                            pessoaAtualizada.setNome(nome);
+
+                            std::cout << "Nova senha: ";
+                            std::cin >> novaSenha;
+
+                            Senha senha;
+                            senha.setSenha(novaSenha);
+                            pessoaAtualizada.setSenha(senha);
+
+                            std::cout << "Novo papel (GESTOR ou DESENVOLVEDOR): ";
+                            std::cin >> novoPapel;
+
+                            Papel papel;
+                            papel.setPapel(novoPapel);
+                            pessoaAtualizada.setPapel(papel);
+
+                            controladoraPessoas.atualizar(
+                                pessoaEncontrada.getPapel(), pessoaAtualizada);
+
+                            std::cout << "\nPessoa atualizada com sucesso!\n";
+                        }
+                        catch (const std::exception &erro)
+                        {
+                            std::cout << "\nErro na atualizacao: "
+                                      << erro.what() << std::endl;
+                        }
+
+                        break;
+                    }
+
+                    case 5:
+                    {
+                        std::string emailInformado;
+                        char confirmacao;
+
+                        try
+                        {
+                            std::cout << "\n========== REMOVER PESSOA ==========\n";
+
+                            std::cout << "Digite o email da pessoa: ";
+                            std::cin >> emailInformado;
+
+                            Email email;
+                            email.setEmail(emailInformado);
+
+                            Pessoa pessoaRemover =
+                                controladoraPessoas.consultar(
+                                    pessoaEncontrada.getPapel(), email);
+
+                            std::cout << "\nPessoa encontrada:\n";
+                            std::cout << "Nome: "
+                                      << pessoaRemover.getNome().getNome() << "\n";
+                            std::cout << "Email: "
+                                      << pessoaRemover.getEmail().getEmail() << "\n";
+
+                            std::cout << "\nDeseja realmente remover? (S/N): ";
+                            std::cin >> confirmacao;
+
+                            if (confirmacao == 'S' || confirmacao == 's')
+                            {
+                                controladoraPessoas.remover(
+                                    pessoaEncontrada.getPapel(), email);
+
+                                std::cout << "\nPessoa removida com sucesso!\n";
+                            }
+                            else
+                            {
+                                std::cout << "\nRemocao cancelada.\n";
+                            }
+                        }
+                        catch (const std::exception &erro)
+                        {
+                            std::cout << "\nErro na remocao: "
+                                      << erro.what() << std::endl;
+                        }
+
+                        break;
+                    }
+
+                    case 0:
+                        std::cout << "Voltando ao menu principal..."
+                                  << std::endl;
+                        break;
+
+                    default:
+                        std::cout << "Opcao invalida!"
+                                  << std::endl;
+                    }
+
+                } while (opcaoPessoas != 0);
+
+                break;
+            }
+            case 2:
+                std::cout << "Opcao de gerenciamento de projetos."
+                          << std::endl;
+                break;
+
+            case 3:
+                std::cout << "Opcao de gerenciamento de quadros."
+                          << std::endl;
+                break;
+
+            case 4:
+                std::cout << "Opcao de gerenciamento de cartoes."
+                          << std::endl;
+                break;
+
+            case 0:
+                std::cout << "Encerrando o sistema..."
+                          << std::endl;
+                break;
+
+            default:
+                std::cout << "Opcao invalida!"
+                          << std::endl;
+            }
+
+        } while (opcao != 0);
     }
+
     catch (const std::exception &erro)
     {
 
