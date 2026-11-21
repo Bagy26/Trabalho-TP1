@@ -63,7 +63,7 @@ int main()
     {
 
         // =========================================
-        // 1. CRIAÇÃO DOS CONTAINERS E DAS TABELAS
+        // 1. CRIACAO DOS CONTAINERS E DAS TABELAS
         // =========================================
 
         Pessoas pessoas(banco);
@@ -72,48 +72,23 @@ int main()
         Projetos projetos(banco);
         projetos.criarTabela();
 
-        std::cout << "Tabelas criadas com sucesso!" << std::endl;
-
-        // =========================================
-        // 2. CRIAÇÃO DA ENTIDADE PESSOA (GESTOR)
-        // =========================================
-
-        Email email;
-        email.setEmail("teste@gmail.com");
-
-        Nome nome;
-        nome.setNome("Maria Silva");
-
-        Senha senha;
-        senha.setSenha("Abc12");
-
-        Papel papel;
-        papel.setPapel("GESTOR");
-
-        Pessoa pessoa;
-        pessoa.setEmail(email);
-        pessoa.setNome(nome);
-        pessoa.setSenha(senha);
-        pessoa.setPapel(papel);
-
         Quadros quadros(banco);
         quadros.criarTabela();
 
         CartoesAtividades cartoes(banco);
         cartoes.criarTabela();
 
-        ServicoCartoesAtividades servicoCartoes(cartoes, quadros);
-
         // =========================================
-        // CRIACAO DOS DEMAIS SERVICOS
+        // 2. CRIACAO DOS SERVICOS
         // =========================================
 
         ServicoPessoas servicoPessoas(pessoas);
         ServicoProjetos servicoProjetos(projetos);
         ServicoQuadros servicoQuadros(quadros);
+        ServicoCartoesAtividades servicoCartoes(cartoes, quadros);
 
         // =========================================
-        // CRIACAO DAS CONTROLADORAS
+        // 3. CRIACAO DAS CONTROLADORAS
         // =========================================
 
         ControladoraPessoas controladoraPessoas(servicoPessoas);
@@ -122,527 +97,19 @@ int main()
         ControladoraCartoesAtividades controladoraCartoes(servicoCartoes);
 
         // =========================================
-        // CRIAÇÃO DO QUADRO DE TESTE
+        // 4. RECUPERACAO DO USUARIO
         // =========================================
 
-        Identificador identificadorQuadro;
-        identificadorQuadro.setIdentificador("QDR001");
+        Email emailUsuario;
+        emailUsuario.setEmail("teste@gmail.com");
 
-        Nome nomeQuadro;
-        nomeQuadro.setNome("Quadro Teste");
-
-        Limite limiteWIP;
-        limiteWIP.setValor(3);
-
-        Identificador projetoDoQuadro;
-        projetoDoQuadro.setIdentificador("PRJ001");
-
-        Quadro quadro;
-        quadro.setIdentificador(identificadorQuadro);
-        quadro.setNome(nomeQuadro);
-        quadro.setLimite(limiteWIP);
-        quadro.setProjeto(projetoDoQuadro);
-
-        // Evita cadastrar novamente um quadro existente.
-        bool quadroExiste = false;
-
-        std::vector<Quadro> quadrosCadastrados = quadros.listar();
-
-        for (const Quadro &existente : quadrosCadastrados)
-        {
-            if (existente.getIdentificador().getIdentificador() == "QDR001")
-            {
-                quadroExiste = true;
-                break;
-            }
-        }
-
-        if (!quadroExiste)
-        {
-            quadros.inserir(quadro);
-            std::cout << "Quadro cadastrado com sucesso!" << std::endl;
-        }
-        else
-        {
-            std::cout << "Utilizando quadro ja cadastrado!" << std::endl;
-        }
+        Pessoa pessoaEncontrada = pessoas.consultar(emailUsuario);
 
         // =========================================
-        // CRIAÇÃO DO PRIMEIRO CARTÃO DE TESTE
-        // =========================================
-
-        Identificador identificadorCartao;
-        identificadorCartao.setIdentificador("CAR001");
-
-        Nome nomeCartao;
-        nomeCartao.setNome("Cartao Teste");
-
-        Texto descricaoCartao;
-        descricaoCartao.setTexto("Testar indicador WIP.");
-
-        Prioridade prioridadeCartao;
-        prioridadeCartao.setPrioridade("ALTA");
-
-        Estado estadoCartao;
-        estadoCartao.setEstado("A FAZER");
-
-        Tamanho tamanhoCartao;
-        tamanhoCartao.setTamanho("PEQUENO");
-
-        Timestamp entradaCartao;
-        entradaCartao.setTimestamp("15-NOV-2026-08:00");
-
-        Timestamp inicioCartao;
-        inicioCartao.setTimestamp("15-NOV-2026-08:00");
-
-        Timestamp terminoCartao;
-        terminoCartao.setTimestamp("15-NOV-2026-08:00");
-
-        Email desenvolvedorCartao;
-        desenvolvedorCartao.setEmail("teste@gmail.com");
-
-        CartaoAtividade cartao;
-        cartao.setIdentificador(identificadorCartao);
-        cartao.setNome(nomeCartao);
-        cartao.setDescricao(descricaoCartao);
-        cartao.setPrioridade(prioridadeCartao);
-        cartao.setEstado(estadoCartao);
-        cartao.setTamanho(tamanhoCartao);
-        cartao.setEntrada(entradaCartao);
-        cartao.setInicio(inicioCartao);
-        cartao.setTermino(terminoCartao);
-        cartao.setDesenvolvedor(desenvolvedorCartao);
-        cartao.setQuadro(identificadorQuadro);
-
-        // Verifica se o cartão já existe.
-        bool cartaoExiste = false;
-
-        std::vector<CartaoAtividade> cartoesCadastrados =
-            cartoes.listar();
-
-        for (const CartaoAtividade &existente : cartoesCadastrados)
-        {
-            if (existente.getIdentificador().getIdentificador() == "CAR001")
-            {
-                cartaoExiste = true;
-                break;
-            }
-        }
-
-        if (!cartaoExiste)
-        {
-            servicoCartoes.cadastrar(cartao);
-            std::cout << "Cartao CAR001 cadastrado!" << std::endl;
-        }
-        else
-        {
-            std::cout << "Cartao CAR001 ja cadastrado!" << std::endl;
-        }
-
-        // =========================================
-        // TESTE DE MOVIMENTAÇÃO E WIP
-        // =========================================
-
-        Estado estadoFazendo;
-        estadoFazendo.setEstado("FAZENDO");
-
-        Timestamp momentoInicio;
-        momentoInicio.setTimestamp("15-NOV-2026-09:00");
-
-        CartaoAtividade cartaoAtual =
-            servicoCartoes.consultar(identificadorCartao);
-
-        if (cartaoAtual.getEstado().getEstado() == "A FAZER")
-        {
-            servicoCartoes.mover(
-                identificadorCartao,
-                estadoFazendo,
-                momentoInicio);
-
-            std::cout << "Cartao movido para FAZENDO!" << std::endl;
-        }
-        else
-        {
-            std::cout << "Cartao ja foi movimentado anteriormente."
-                      << std::endl;
-        }
-
-        std::cout << "WIP atual do quadro: "
-                  << servicoCartoes.calcularWIP(identificadorQuadro)
-                  << std::endl;
-
-        // =========================================
-        // TESTE DE BLOQUEIO DO LIMITE WIP
-        // =========================================
-
-        Identificador idQuartoCartao;
-        idQuartoCartao.setIdentificador("CAR004");
-
-        Nome nomeQuartoCartao;
-        nomeQuartoCartao.setNome("Cartao Quatro");
-
-        Texto descricaoQuartoCartao;
-        descricaoQuartoCartao.setTexto("Testar limite WIP.");
-
-        Prioridade prioridadeQuartoCartao;
-        prioridadeQuartoCartao.setPrioridade("ALTA");
-
-        Estado estadoQuartoCartao;
-        estadoQuartoCartao.setEstado("A FAZER");
-
-        Tamanho tamanhoQuartoCartao;
-        tamanhoQuartoCartao.setTamanho("PEQUENO");
-
-        Timestamp dataQuartoCartao;
-        dataQuartoCartao.setTimestamp("19-NOV-2026-08:00");
-
-        CartaoAtividade quartoCartao;
-        quartoCartao.setIdentificador(idQuartoCartao);
-        quartoCartao.setNome(nomeQuartoCartao);
-        quartoCartao.setDescricao(descricaoQuartoCartao);
-        quartoCartao.setPrioridade(prioridadeQuartoCartao);
-        quartoCartao.setEstado(estadoQuartoCartao);
-        quartoCartao.setTamanho(tamanhoQuartoCartao);
-        quartoCartao.setEntrada(dataQuartoCartao);
-        quartoCartao.setInicio(dataQuartoCartao);
-        quartoCartao.setTermino(dataQuartoCartao);
-        quartoCartao.setDesenvolvedor(desenvolvedorCartao);
-        quartoCartao.setQuadro(identificadorQuadro);
-
-        // Cadastra somente se ainda nao existir.
-        bool quartoExiste = false;
-
-        std::vector<CartaoAtividade> todosCartoes = cartoes.listar();
-
-        for (const CartaoAtividade &existente : todosCartoes)
-        {
-            if (existente.getIdentificador().getIdentificador() == "CAR004")
-            {
-                quartoExiste = true;
-                break;
-            }
-        }
-
-        if (!quartoExiste)
-        {
-            servicoCartoes.cadastrar(quartoCartao);
-        }
-
-        Estado novoEstado;
-        novoEstado.setEstado("FAZENDO");
-
-        Timestamp momentoMovimentacao;
-        momentoMovimentacao.setTimestamp("19-NOV-2026-12:00");
-
-        try
-        {
-            servicoCartoes.mover(
-                idQuartoCartao,
-                novoEstado,
-                momentoMovimentacao);
-
-            std::cout << "ERRO: o limite WIP nao foi respeitado!"
-                      << std::endl;
-        }
-        catch (const std::exception &erro)
-        {
-            std::cout << "Bloqueio esperado: "
-                      << erro.what() << std::endl;
-        }
-
-        std::cout << "WIP apos tentativa: "
-                  << servicoCartoes.calcularWIP(identificadorQuadro)
-                  << std::endl;
-
-        // =========================================
-        // TESTE DE LEAD TIME E CYCLE TIME
-        // =========================================
-
-        Estado estadoFeito;
-        estadoFeito.setEstado("FEITO");
-
-        // Identificador do CAR002
-        Identificador idCartaoDois;
-        idCartaoDois.setIdentificador("CAR002");
-
-        // Consulta os cartões
-        CartaoAtividade primeiro = servicoCartoes.consultar(
-            identificadorCartao);
-
-        CartaoAtividade segundo = servicoCartoes.consultar(
-            idCartaoDois);
-
-        // Conclui CAR001
-        if (primeiro.getEstado().getEstado() == "FAZENDO")
-        {
-            Timestamp terminoUm;
-            terminoUm.setTimestamp("19-NOV-2026-13:00");
-
-            servicoCartoes.mover(
-                identificadorCartao,
-                estadoFeito,
-                terminoUm);
-
-            std::cout << "CAR001 concluido!" << std::endl;
-        }
-
-        // Conclui CAR002
-        if (segundo.getEstado().getEstado() == "FAZENDO")
-        {
-            Timestamp terminoDois;
-            terminoDois.setTimestamp("19-NOV-2026-14:00");
-
-            servicoCartoes.mover(
-                idCartaoDois,
-                estadoFeito,
-                terminoDois);
-
-            std::cout << "CAR002 concluido!" << std::endl;
-        }
-
-        // Calcula os indicadores
-        std::cout << "\n--- INDICADORES DO QUADRO ---" << std::endl;
-
-        std::cout << "WIP: "
-                  << servicoCartoes.calcularWIP(identificadorQuadro)
-                  << std::endl;
-
-        std::cout << "Lead Time medio (minutos): "
-                  << servicoCartoes.calcularLeadTimeMedio(identificadorQuadro)
-                  << std::endl;
-
-        std::cout << "Cycle Time medio (minutos): "
-                  << servicoCartoes.calcularCycleTimeMedio(identificadorQuadro)
-                  << std::endl;
-
-        // =========================================
-        // CADASTRO DOS CARTOES CAR002 E CAR003
-        // =========================================
-
-        for (int numero = 2; numero <= 3; numero++)
-        {
-
-            std::string id = "CAR00" + std::to_string(numero);
-
-            Identificador identificador;
-            identificador.setIdentificador(id);
-
-            Nome nome;
-
-            if (numero == 2)
-            {
-                nome.setNome("Cartao Dois");
-            }
-            else
-            {
-                nome.setNome("Cartao Tres");
-            }
-            Texto descricao;
-            descricao.setTexto("Testar limite WIP.");
-
-            Prioridade prioridade;
-            prioridade.setPrioridade("MEDIA");
-
-            Estado estado;
-            estado.setEstado("A FAZER");
-
-            Tamanho tamanho;
-            tamanho.setTamanho("PEQUENO");
-
-            Timestamp entrada;
-            entrada.setTimestamp("15-NOV-2026-08:00");
-
-            Timestamp inicio;
-            inicio.setTimestamp("15-NOV-2026-08:00");
-
-            Timestamp termino;
-            termino.setTimestamp("15-NOV-2026-08:00");
-
-            Email desenvolvedor;
-            desenvolvedor.setEmail("teste@gmail.com");
-
-            CartaoAtividade novoCartao;
-            novoCartao.setIdentificador(identificador);
-            novoCartao.setNome(nome);
-            novoCartao.setDescricao(descricao);
-            novoCartao.setPrioridade(prioridade);
-            novoCartao.setEstado(estado);
-            novoCartao.setTamanho(tamanho);
-            novoCartao.setEntrada(entrada);
-            novoCartao.setInicio(inicio);
-            novoCartao.setTermino(termino);
-            novoCartao.setDesenvolvedor(desenvolvedor);
-            novoCartao.setQuadro(identificadorQuadro);
-
-            bool existe = false;
-
-            std::vector<CartaoAtividade> cadastrados =
-                cartoes.listar();
-
-            for (const CartaoAtividade &existente : cadastrados)
-            {
-                if (existente.getIdentificador().getIdentificador() == id)
-                {
-                    existe = true;
-                    break;
-                }
-            }
-
-            if (!existe)
-            {
-                servicoCartoes.cadastrar(novoCartao);
-                std::cout << id << " cadastrado!" << std::endl;
-            }
-            else
-            {
-                std::cout << id << " ja cadastrado!" << std::endl;
-            }
-
-            // Movimenta o cartão para FAZENDO.
-            CartaoAtividade atual = servicoCartoes.consultar(identificador);
-
-            if (atual.getEstado().getEstado() == "A FAZER")
-            {
-                Estado fazendo;
-                fazendo.setEstado("FAZENDO");
-
-                Timestamp momento;
-                momento.setTimestamp(
-                    numero == 2
-                        ? "15-NOV-2026-10:00"
-                        : "15-NOV-2026-11:00");
-
-                servicoCartoes.mover(
-                    identificador,
-                    fazendo,
-                    momento);
-
-                std::cout << id << " movido para FAZENDO!" << std::endl;
-            }
-        }
-
-        std::cout << "\nWIP final do quadro: "
-                  << servicoCartoes.calcularWIP(identificadorQuadro)
-                  << std::endl;
-
-        // =========================================
-        // 3. CADASTRO DA PESSOA
-        // =========================================
-        // A pessoa já está cadastrada no banco.
-        // Vamos utilizar o cadastro existente como gestor.
-        std::cout << "Utilizando pessoa gestora já cadastrada!"
-                  << std::endl;
-
-        // =========================================
-        // 4. CRIAÇÃO DA ENTIDADE PROJETO
-        // =========================================
-
-        Identificador identificadorProjeto;
-        identificadorProjeto.setIdentificador("PRJ001");
-
-        Nome nomeProjeto;
-        nomeProjeto.setNome("Projeto Kanban");
-
-        Texto descricaoProjeto;
-        descricaoProjeto.setTexto("Desenvolver sistema Kanban.");
-
-        Timestamp inicioProjeto;
-        inicioProjeto.setTimestamp("01-JAN-2026-08:00");
-
-        Timestamp terminoProjeto;
-        terminoProjeto.setTimestamp("30-DEZ-2026-18:00");
-
-        Email emailGestor;
-        emailGestor.setEmail("teste@gmail.com");
-
-        Projeto projeto;
-        projeto.setIdentificador(identificadorProjeto);
-        projeto.setNome(nomeProjeto);
-        projeto.setDescricao(descricaoProjeto);
-        projeto.setInicio(inicioProjeto);
-        projeto.setTermino(terminoProjeto);
-        projeto.setGestor(emailGestor);
-
-        // =========================================
-        // 5. CADASTRO DO PROJETO
-        // =========================================
-
-        // 5. CADASTRO DO PROJETO
-
-        // O projeto PRJ001 já está cadastrado no banco.
-        // Vamos testar sua recuperação pelo método listar().
-
-        std::cout << "Consultando projetos cadastrados..."
-                  << std::endl;
-        // Listagem de todos os projetos
-        std::vector<Projeto> projetosCadastrados = projetos.listar();
-
-        std::cout << "\n--- Projetos cadastrados ---\n";
-        for (const Projeto &projetoCadastrado : projetosCadastrados)
-        {
-            std::cout << "Identificador: "
-                      << projetoCadastrado.getIdentificador().getIdentificador()
-                      << std::endl;
-            std::cout << "Nome: "
-                      << projetoCadastrado.getNome().getNome()
-                      << std::endl;
-            std::cout << "Descricao: "
-                      << projetoCadastrado.getDescricao().getTexto()
-                      << std::endl;
-            std::cout << "Gestor: "
-                      << projetoCadastrado.getGestor().getEmail()
-                      << std::endl;
-            std::cout << "--------------------------\n";
-        }
-
-        // =========================================
-        // 6. LISTAGEM DAS PESSOAS
-        // =========================================
-
-        std::vector<Pessoa> pessoasCadastradas = pessoas.listar();
-
-        std::cout << "\n--- Pessoas cadastradas ---\n";
-        for (const Pessoa &pessoaCadastrada : pessoasCadastradas)
-        {
-            std::cout << "Email: "
-                      << pessoaCadastrada.getEmail().getEmail()
-                      << std::endl;
-            std::cout << "Nome: "
-                      << pessoaCadastrada.getNome().getNome()
-                      << std::endl;
-            std::cout << "Papel: "
-                      << pessoaCadastrada.getPapel().getPapel()
-                      << std::endl;
-            std::cout << "--------------------------\n";
-        }
-
-        // =========================================
-        // 7. CONSULTA DA PESSOA
-        // =========================================
-
-        Email emailConsulta;
-        emailConsulta.setEmail("teste@gmail.com");
-
-        Pessoa pessoaEncontrada = pessoas.consultar(emailConsulta);
-
-        std::cout << "\n--- Pessoa encontrada ---\n";
-
-        std::cout << "Email: "
-                  << pessoaEncontrada.getEmail().getEmail()
-                  << std::endl;
-        std::cout << "Nome: "
-                  << pessoaEncontrada.getNome().getNome()
-                  << std::endl;
-        std::cout << "Papel: "
-                  << pessoaEncontrada.getPapel().getPapel()
-                  << std::endl;
-
-        // =========================================
-        // 8. EXIBICAO DO MENU PRINCIPAL
+        // 5. EXIBICAO DO MENU PRINCIPAL
         // =========================================
 
         TelaPrincipal tela;
-
         tela.setPapelUsuario(pessoaEncontrada.getPapel());
 
         int opcao;
@@ -885,15 +352,416 @@ int main()
                 break;
             }
             case 2:
-                std::cout << "Opcao de gerenciamento de projetos."
-                          << std::endl;
+            {
+                int opcaoProjetos;
+
+                do
+                {
+                    tela.exibirMenuProjetos();
+                    opcaoProjetos = tela.lerOpcao();
+
+                    switch (opcaoProjetos)
+                    {
+                    case 1:
+                    {
+                        try
+                        {
+                            std::string valorIdentificador;
+                            std::string valorNome;
+                            std::string valorDescricao;
+                            std::string valorInicio;
+                            std::string valorTermino;
+
+                            std::cout << "\n========== CADASTRO DE PROJETO ==========\n";
+
+                            std::cout << "Identificador do projeto: ";
+                            std::getline(std::cin >> std::ws, valorIdentificador);
+
+                            std::cout << "Nome do projeto: ";
+                            std::getline(std::cin, valorNome);
+
+                            std::cout << "Descricao do projeto: ";
+                            std::getline(std::cin, valorDescricao);
+
+                            std::cout << "Data de inicio (DD-MMM-AAAA-HH:MM): ";
+                            std::getline(std::cin, valorInicio);
+
+                            std::cout << "Data de termino (DD-MMM-AAAA-HH:MM): ";
+                            std::getline(std::cin, valorTermino);
+
+                            // Cria e valida os dados do projeto.
+                            Identificador identificador;
+                            identificador.setIdentificador(valorIdentificador);
+
+                            Nome nome;
+                            nome.setNome(valorNome);
+
+                            Texto descricao;
+                            descricao.setTexto(valorDescricao);
+
+                            Timestamp inicio;
+                            inicio.setTimestamp(valorInicio);
+
+                            Timestamp termino;
+                            termino.setTimestamp(valorTermino);
+
+                            // Monta a entidade Projeto.
+                            Projeto novoProjeto;
+                            novoProjeto.setIdentificador(identificador);
+                            novoProjeto.setNome(nome);
+                            novoProjeto.setDescricao(descricao);
+                            novoProjeto.setInicio(inicio);
+                            novoProjeto.setTermino(termino);
+                            novoProjeto.setGestor(pessoaEncontrada.getEmail());
+
+                            // Encaminha o cadastro para a controladora.
+                            controladoraProjetos.cadastrar(
+                                pessoaEncontrada.getPapel(),
+                                novoProjeto);
+
+                            std::cout << "\nProjeto cadastrado com sucesso!\n";
+                        }
+                        catch (const std::exception &erro)
+                        {
+                            std::cout << "\nErro ao cadastrar projeto: "
+                                      << erro.what() << "\n";
+                        }
+
+                        break;
+                    }
+
+                    case 2:
+                    {
+                        try
+                        {
+                            std::string valorIdentificador;
+
+                            std::cout << "\n========== CONSULTAR PROJETO ==========\n";
+
+                            std::cout << "Informe o identificador do projeto: ";
+                            std::getline(std::cin >> std::ws, valorIdentificador);
+
+                            Identificador identificador;
+                            identificador.setIdentificador(valorIdentificador);
+
+                            Projeto projetoEncontrado =
+                                controladoraProjetos.consultar(
+                                    pessoaEncontrada.getPapel(),
+                                    identificador);
+
+                            std::cout << "\n========== DADOS DO PROJETO ==========\n";
+
+                            std::cout << "Identificador: "
+                                      << projetoEncontrado.getIdentificador().getIdentificador() << "\n";
+
+                            std::cout << "Nome: "
+                                      << projetoEncontrado.getNome().getNome() << "\n";
+
+                            std::cout << "Descricao: "
+                                      << projetoEncontrado.getDescricao().getTexto() << "\n";
+
+                            std::cout << "Inicio: "
+                                      << projetoEncontrado.getInicio().getTimestamp() << "\n";
+
+                            std::cout << "Termino: "
+                                      << projetoEncontrado.getTermino().getTimestamp() << "\n";
+
+                            std::cout << "Gestor: "
+                                      << projetoEncontrado.getGestor().getEmail() << "\n";
+                        }
+                        catch (const std::exception &erro)
+                        {
+                            std::cout << "\nErro ao consultar projeto: "
+                                      << erro.what() << "\n";
+                        }
+
+                        break;
+                    }
+
+                    case 3:
+                    {
+                        std::vector<Projeto> projetosCadastrados =
+                            controladoraProjetos.listar(pessoaEncontrada.getPapel());
+
+                        tela.exibirProjetos(projetosCadastrados);
+                        break;
+                    }
+
+                    case 4:
+                    {
+                        try
+                        {
+                            std::string valorIdentificador;
+                            std::string valorNome;
+                            std::string valorDescricao;
+                            std::string valorInicio;
+                            std::string valorTermino;
+
+                            std::cout << "\n========== ATUALIZAR PROJETO ==========\n";
+
+                            std::cout << "Informe o identificador do projeto: ";
+                            std::getline(std::cin >> std::ws, valorIdentificador);
+
+                            Identificador identificador;
+                            identificador.setIdentificador(valorIdentificador);
+
+                            // Busca o projeto existente no banco.
+                            Projeto projetoAtualizado =
+                                controladoraProjetos.consultar(
+                                    pessoaEncontrada.getPapel(),
+                                    identificador);
+
+                            std::cout << "\nInforme os novos dados:\n";
+
+                            std::cout << "Novo nome: ";
+                            std::getline(std::cin, valorNome);
+
+                            std::cout << "Nova descricao: ";
+                            std::getline(std::cin, valorDescricao);
+
+                            std::cout << "Nova data de inicio (DD-MMM-AAAA-HH:MM): ";
+                            std::getline(std::cin, valorInicio);
+
+                            std::cout << "Nova data de termino (DD-MMM-AAAA-HH:MM): ";
+                            std::getline(std::cin, valorTermino);
+
+                            // Valida os novos dados.
+                            Nome nome;
+                            nome.setNome(valorNome);
+
+                            Texto descricao;
+                            descricao.setTexto(valorDescricao);
+
+                            Timestamp inicio;
+                            inicio.setTimestamp(valorInicio);
+
+                            Timestamp termino;
+                            termino.setTimestamp(valorTermino);
+
+                            // Atualiza somente os campos permitidos.
+                            projetoAtualizado.setNome(nome);
+                            projetoAtualizado.setDescricao(descricao);
+                            projetoAtualizado.setInicio(inicio);
+                            projetoAtualizado.setTermino(termino);
+
+                            controladoraProjetos.atualizar(
+                                pessoaEncontrada.getPapel(),
+                                projetoAtualizado);
+
+                            std::cout << "\nProjeto atualizado com sucesso!\n";
+                        }
+                        catch (const std::exception &erro)
+                        {
+                            std::cout << "\nErro ao atualizar projeto: "
+                                      << erro.what() << "\n";
+                        }
+
+                        break;
+                    }
+
+                    case 5:
+                    {
+                        try
+                        {
+                            std::string valorIdentificador;
+                            char confirmacao;
+
+                            std::cout << "\n========== REMOVER PROJETO ==========\n";
+
+                            std::cout << "Informe o identificador do projeto: ";
+                            std::getline(std::cin >> std::ws, valorIdentificador);
+
+                            Identificador identificador;
+                            identificador.setIdentificador(valorIdentificador);
+
+                            // Consulta o projeto antes de solicitar a remocao.
+                            Projeto projetoEncontrado =
+                                controladoraProjetos.consultar(
+                                    pessoaEncontrada.getPapel(),
+                                    identificador);
+
+                            std::cout << "\nProjeto encontrado: "
+                                      << projetoEncontrado.getNome().getNome() << "\n";
+
+                            std::cout << "Deseja realmente remover este projeto? (S/N): ";
+                            std::cin >> confirmacao;
+
+                            if (confirmacao == 'S' || confirmacao == 's')
+                            {
+                                controladoraProjetos.remover(
+                                    pessoaEncontrada.getPapel(),
+                                    identificador);
+
+                                std::cout << "\nProjeto removido com sucesso!\n";
+                            }
+                            else
+                            {
+                                std::cout << "\nRemocao cancelada.\n";
+                            }
+                        }
+                        catch (const std::exception &erro)
+                        {
+                            std::cout << "\nErro ao remover projeto: "
+                                      << erro.what() << "\n";
+                        }
+
+                        break;
+                    }
+
+                    case 0:
+                        std::cout << "Voltando ao menu principal..."
+                                  << std::endl;
+                        break;
+
+                    default:
+                        std::cout << "Opcao invalida!"
+                                  << std::endl;
+                    }
+
+                } while (opcaoProjetos != 0);
+
                 break;
+            }
 
             case 3:
-                std::cout << "Opcao de gerenciamento de quadros."
-                          << std::endl;
-                break;
+            {
+                int opcaoQuadros;
 
+                do
+                {
+                    tela.exibirMenuQuadros();
+                    opcaoQuadros = tela.lerOpcao();
+
+                    switch (opcaoQuadros)
+                    {
+                    case 1:
+                    {
+                        try
+                        {
+                            std::string valorIdentificador;
+                            std::string valorNome;
+                            std::string valorProjeto;
+                            int valorLimite;
+
+                            std::cout << "\n========== CADASTRO DE QUADRO ==========\n";
+
+                            std::cout << "Identificador do quadro: ";
+                            std::getline(std::cin >> std::ws, valorIdentificador);
+
+                            std::cout << "Nome do quadro: ";
+                            std::getline(std::cin, valorNome);
+
+                            std::cout << "Limite de atividades simultaneas (WIP): ";
+                            std::cin >> valorLimite;
+                            std::cin.ignore(10000, '\n');
+
+                            std::cout << "Identificador do projeto associado: ";
+                            std::getline(std::cin, valorProjeto);
+
+                            Identificador identificador;
+                            identificador.setIdentificador(valorIdentificador);
+
+                            Nome nome;
+                            nome.setNome(valorNome);
+
+                            Limite limite;
+                            limite.setValor(valorLimite);
+
+                            Identificador identificadorProjeto;
+                            identificadorProjeto.setIdentificador(valorProjeto);
+
+                            // Verifica se o projeto existe.
+                            controladoraProjetos.consultar(
+                                pessoaEncontrada.getPapel(),
+                                identificadorProjeto);
+
+                            Quadro novoQuadro;
+                            novoQuadro.setIdentificador(identificador);
+                            novoQuadro.setNome(nome);
+                            novoQuadro.setLimite(limite);
+                            novoQuadro.setProjeto(identificadorProjeto);
+
+                            controladoraQuadros.cadastrar(
+                                pessoaEncontrada.getPapel(),
+                                novoQuadro);
+
+                            std::cout << "\nQuadro cadastrado com sucesso!\n";
+                        }
+                        catch (const std::exception &erro)
+                        {
+                            std::cout << "\nErro ao cadastrar quadro: "
+                                      << erro.what() << "\n";
+                        }
+
+                        break;
+                    }
+
+                    case 2:
+                    {
+                        try
+                        {
+                            std::string valorIdentificador;
+
+                            std::cout << "\n========== CONSULTAR QUADRO ==========\n";
+
+                            std::cout << "Informe o identificador do quadro: ";
+                            std::getline(std::cin >> std::ws, valorIdentificador);
+
+                            Identificador identificador;
+                            identificador.setIdentificador(valorIdentificador);
+
+                            Quadro quadroEncontrado =
+                                controladoraQuadros.consultar(
+                                    pessoaEncontrada.getPapel(),
+                                    identificador);
+
+                            std::cout << "\n========== DADOS DO QUADRO ==========\n";
+
+                            std::cout << "Identificador: "
+                                      << quadroEncontrado.getIdentificador().getIdentificador() << "\n";
+
+                            std::cout << "Nome: "
+                                      << quadroEncontrado.getNome().getNome() << "\n";
+
+                            std::cout << "Limite WIP: "
+                                      << quadroEncontrado.getLimite().getValor() << "\n";
+
+                            std::cout << "Projeto associado: "
+                                      << quadroEncontrado.getProjeto().getIdentificador() << "\n";
+                        }
+                        catch (const std::exception &erro)
+                        {
+                            std::cout << "\nErro ao consultar quadro: "
+                                      << erro.what() << "\n";
+                        }
+
+                        break;
+                    }
+
+                    case 3:
+                        std::cout << "Opcao de listagem de quadros.\n";
+                        break;
+
+                    case 4:
+                        std::cout << "Opcao de atualizacao de quadro.\n";
+                        break;
+
+                    case 5:
+                        std::cout << "Opcao de remocao de quadro.\n";
+                        break;
+
+                    case 0:
+                        std::cout << "Retornando ao menu principal.\n";
+                        break;
+
+                    default:
+                        std::cout << "Opcao invalida.\n";
+                    }
+
+                } while (opcaoQuadros != 0);
+
+                break;
+            }
             case 4:
                 std::cout << "Opcao de gerenciamento de cartoes."
                           << std::endl;

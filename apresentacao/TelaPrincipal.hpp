@@ -103,6 +103,74 @@ public:
         std::cout << "0 - Voltar ao menu principal\n";
         std::cout << "Escolha uma opcao: ";
     }
+
+    /**
+     * @brief Exibe o menu de gerenciamento de projetos.
+     */
+    void exibirMenuProjetos()
+    {
+        std::cout << "\n========== GERENCIAMENTO DE PROJETOS ==========\n";
+        std::cout << "1 - Cadastrar projeto\n";
+        std::cout << "2 - Consultar projeto\n";
+        std::cout << "3 - Listar projetos\n";
+        std::cout << "4 - Atualizar projeto\n";
+        std::cout << "5 - Remover projeto\n";
+        std::cout << "0 - Voltar ao menu principal\n";
+        std::cout << "Escolha uma opcao: ";
+    }
+
+    /**
+     * @brief Exibe a lista de projetos cadastrados.
+     * @param projetos Vetor de projetos cadastrados.
+     */
+    void exibirProjetos(const std::vector<Projeto> &projetos)
+    {
+        std::cout << "\n========== PROJETOS CADASTRADOS ==========\n";
+
+        if (projetos.empty())
+        {
+            std::cout << "Nenhum projeto cadastrado.\n";
+            return;
+        }
+
+        for (const Projeto &projeto : projetos)
+        {
+            std::cout << "Identificador: "
+                      << projeto.getIdentificador().getIdentificador() << "\n";
+
+            std::cout << "Nome: "
+                      << projeto.getNome().getNome() << "\n";
+
+            std::cout << "Descricao: "
+                      << projeto.getDescricao().getTexto() << "\n";
+
+            std::cout << "Inicio: "
+                      << projeto.getInicio().getTimestamp() << "\n";
+
+            std::cout << "Termino: "
+                      << projeto.getTermino().getTimestamp() << "\n";
+
+            std::cout << "Gestor: "
+                      << projeto.getGestor().getEmail() << "\n";
+
+            std::cout << "----------------------------------------\n";
+        }
+    }
+
+    /**
+     * @brief Exibe o menu de gerenciamento de quadros.
+     */
+    void exibirMenuQuadros()
+    {
+        std::cout << "\n========== GERENCIAMENTO DE QUADROS ==========\n";
+        std::cout << "1 - Cadastrar quadro\n";
+        std::cout << "2 - Consultar quadro\n";
+        std::cout << "3 - Listar quadros\n";
+        std::cout << "4 - Atualizar quadro\n";
+        std::cout << "5 - Remover quadro\n";
+        std::cout << "0 - Voltar ao menu principal\n";
+        std::cout << "Escolha uma opcao: ";
+    }
 };
 
 #endif
