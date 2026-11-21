@@ -12,73 +12,75 @@
  * @class CartoesAtividades
  * @brief Gerencia os cartoes de atividades no banco SQLite.
  */
-class CartoesAtividades {
+class CartoesAtividades
+{
 
 private:
-
-    sqlite3* banco;
+    sqlite3 *banco;
 
     /**
      * @brief Reconstrói uma entidade a partir de uma linha do SQLite.
      */
-    CartaoAtividade construirEntidade(sqlite3_stmt* comando) {
+    CartaoAtividade construirEntidade(sqlite3_stmt *comando)
+    {
 
         CartaoAtividade cartao;
 
         Identificador identificador;
         identificador.setIdentificador(
-            reinterpret_cast<const char*>(sqlite3_column_text(comando, 0))
-        );
+            reinterpret_cast<const char *>(sqlite3_column_text(comando, 0)));
 
         Nome nome;
         nome.setNome(
-            reinterpret_cast<const char*>(sqlite3_column_text(comando, 1))
-        );
+            reinterpret_cast<const char *>(sqlite3_column_text(comando, 1)));
 
         Texto descricao;
         descricao.setTexto(
-            reinterpret_cast<const char*>(sqlite3_column_text(comando, 2))
-        );
+            reinterpret_cast<const char *>(sqlite3_column_text(comando, 2)));
 
         Prioridade prioridade;
         prioridade.setPrioridade(
-            reinterpret_cast<const char*>(sqlite3_column_text(comando, 3))
-        );
+            reinterpret_cast<const char *>(sqlite3_column_text(comando, 3)));
 
         Estado estado;
         estado.setEstado(
-            reinterpret_cast<const char*>(sqlite3_column_text(comando, 4))
-        );
+            reinterpret_cast<const char *>(sqlite3_column_text(comando, 4)));
 
         Tamanho tamanho;
         tamanho.setTamanho(
-            reinterpret_cast<const char*>(sqlite3_column_text(comando, 5))
-        );
+            reinterpret_cast<const char *>(sqlite3_column_text(comando, 5)));
 
         Timestamp entrada;
         entrada.setTimestamp(
-            reinterpret_cast<const char*>(sqlite3_column_text(comando, 6))
-        );
+            reinterpret_cast<const char *>(sqlite3_column_text(comando, 6)));
 
         Timestamp inicio;
-        inicio.setTimestamp(
-            reinterpret_cast<const char*>(sqlite3_column_text(comando, 7))
-        );
+        const unsigned char *valorInicio =
+            sqlite3_column_text(comando, 7);
+
+        if (valorInicio != nullptr && valorInicio[0] != '\0')
+        {
+            inicio.setTimestamp(
+                reinterpret_cast<const char *>(valorInicio));
+        }
 
         Timestamp termino;
-        termino.setTimestamp(
-            reinterpret_cast<const char*>(sqlite3_column_text(comando, 8))
-        );
+        const unsigned char *valorTermino =
+            sqlite3_column_text(comando, 8);
+
+        if (valorTermino != nullptr && valorTermino[0] != '\0')
+        {
+            termino.setTimestamp(
+                reinterpret_cast<const char *>(valorTermino));
+        }
 
         Email desenvolvedor;
         desenvolvedor.setEmail(
-            reinterpret_cast<const char*>(sqlite3_column_text(comando, 9))
-        );
+            reinterpret_cast<const char *>(sqlite3_column_text(comando, 9)));
 
         Identificador quadro;
         quadro.setIdentificador(
-            reinterpret_cast<const char*>(sqlite3_column_text(comando, 10))
-        );
+            reinterpret_cast<const char *>(sqlite3_column_text(comando, 10)));
 
         cartao.setIdentificador(identificador);
         cartao.setNome(nome);
@@ -98,24 +100,24 @@ private:
     /**
      * @brief SQL utilizado para recuperar os dados dos cartões.
      */
-    static const char* consultaCompleta() {
-        return
-            "SELECT identificador, nome, descricao, prioridade, "
-            "estado, tamanho, entrada, inicio, termino, "
-            "desenvolvedor, quadro FROM CartoesAtividades";
+    static const char *consultaCompleta()
+    {
+        return "SELECT identificador, nome, descricao, prioridade, "
+               "estado, tamanho, entrada, inicio, termino, "
+               "desenvolvedor, quadro FROM CartoesAtividades";
     }
 
 public:
-
     /**
      * @brief Inicializa o container.
      */
-    explicit CartoesAtividades(sqlite3* conexao) {
+    explicit CartoesAtividades(sqlite3 *conexao)
+    {
 
-        if (conexao == nullptr) {
+        if (conexao == nullptr)
+        {
             throw std::invalid_argument(
-                "Conexao com o banco invalida."
-            );
+                "Conexao com o banco invalida.");
         }
 
         banco = conexao;
@@ -124,9 +126,10 @@ public:
     /**
      * @brief Cria a tabela de cartões.
      */
-    void criarTabela() {
+    void criarTabela()
+    {
 
-        const char* sql =
+        const char *sql =
             "CREATE TABLE IF NOT EXISTS CartoesAtividades ("
             "identificador TEXT PRIMARY KEY NOT NULL,"
             "nome TEXT NOT NULL,"
@@ -145,17 +148,17 @@ public:
             "ON DELETE RESTRICT"
             ");";
 
-        char* mensagemErro = nullptr;
+        char *mensagemErro = nullptr;
 
         int resultado = sqlite3_exec(
-            banco, sql, nullptr, nullptr, &mensagemErro
-        );
+            banco, sql, nullptr, nullptr, &mensagemErro);
 
-        if (resultado != SQLITE_OK) {
+        if (resultado != SQLITE_OK)
+        {
 
             std::string mensagem = mensagemErro
-                ? mensagemErro
-                : "Erro ao criar tabela CartoesAtividades.";
+                                       ? mensagemErro
+                                       : "Erro ao criar tabela CartoesAtividades.";
 
             sqlite3_free(mensagemErro);
 
@@ -166,69 +169,71 @@ public:
     /**
      * @brief Insere um cartão no banco.
      */
-    void inserir(const CartaoAtividade& cartao) {
+    void inserir(const CartaoAtividade &cartao)
+    {
 
-        const char* sql =
+        const char *sql =
             "INSERT INTO CartoesAtividades "
             "(identificador, nome, descricao, prioridade, estado, "
             "tamanho, entrada, inicio, termino, desenvolvedor, quadro) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
-        sqlite3_stmt* comando = nullptr;
+        sqlite3_stmt *comando = nullptr;
 
         int resultado = sqlite3_prepare_v2(
-            banco, sql, -1, &comando, nullptr
-        );
+            banco, sql, -1, &comando, nullptr);
 
-        if (resultado != SQLITE_OK) {
+        if (resultado != SQLITE_OK)
+        {
             throw std::runtime_error(sqlite3_errmsg(banco));
         }
 
         resultado = sqlite3_bind_text(comando, 1,
-            cartao.getIdentificador().getIdentificador().c_str(),
-            -1, SQLITE_TRANSIENT);
+                                      cartao.getIdentificador().getIdentificador().c_str(),
+                                      -1, SQLITE_TRANSIENT);
 
         if (resultado == SQLITE_OK)
             resultado = sqlite3_bind_text(comando, 2,
-                cartao.getNome().getNome().c_str(), -1, SQLITE_TRANSIENT);
+                                          cartao.getNome().getNome().c_str(), -1, SQLITE_TRANSIENT);
 
         if (resultado == SQLITE_OK)
             resultado = sqlite3_bind_text(comando, 3,
-                cartao.getDescricao().getTexto().c_str(), -1, SQLITE_TRANSIENT);
+                                          cartao.getDescricao().getTexto().c_str(), -1, SQLITE_TRANSIENT);
 
         if (resultado == SQLITE_OK)
             resultado = sqlite3_bind_text(comando, 4,
-                cartao.getPrioridade().getPrioridade().c_str(), -1, SQLITE_TRANSIENT);
+                                          cartao.getPrioridade().getPrioridade().c_str(), -1, SQLITE_TRANSIENT);
 
         if (resultado == SQLITE_OK)
             resultado = sqlite3_bind_text(comando, 5,
-                cartao.getEstado().getEstado().c_str(), -1, SQLITE_TRANSIENT);
+                                          cartao.getEstado().getEstado().c_str(), -1, SQLITE_TRANSIENT);
 
         if (resultado == SQLITE_OK)
             resultado = sqlite3_bind_text(comando, 6,
-                cartao.getTamanho().getTamanho().c_str(), -1, SQLITE_TRANSIENT);
+                                          cartao.getTamanho().getTamanho().c_str(), -1, SQLITE_TRANSIENT);
 
         if (resultado == SQLITE_OK)
             resultado = sqlite3_bind_text(comando, 7,
-                cartao.getEntrada().getTimestamp().c_str(), -1, SQLITE_TRANSIENT);
+                                          cartao.getEntrada().getTimestamp().c_str(), -1, SQLITE_TRANSIENT);
 
         if (resultado == SQLITE_OK)
             resultado = sqlite3_bind_text(comando, 8,
-                cartao.getInicio().getTimestamp().c_str(), -1, SQLITE_TRANSIENT);
+                                          cartao.getInicio().getTimestamp().c_str(), -1, SQLITE_TRANSIENT);
 
         if (resultado == SQLITE_OK)
             resultado = sqlite3_bind_text(comando, 9,
-                cartao.getTermino().getTimestamp().c_str(), -1, SQLITE_TRANSIENT);
+                                          cartao.getTermino().getTimestamp().c_str(), -1, SQLITE_TRANSIENT);
 
         if (resultado == SQLITE_OK)
             resultado = sqlite3_bind_text(comando, 10,
-                cartao.getDesenvolvedor().getEmail().c_str(), -1, SQLITE_TRANSIENT);
+                                          cartao.getDesenvolvedor().getEmail().c_str(), -1, SQLITE_TRANSIENT);
 
         if (resultado == SQLITE_OK)
             resultado = sqlite3_bind_text(comando, 11,
-                cartao.getQuadro().getIdentificador().c_str(), -1, SQLITE_TRANSIENT);
+                                          cartao.getQuadro().getIdentificador().c_str(), -1, SQLITE_TRANSIENT);
 
-        if (resultado != SQLITE_OK) {
+        if (resultado != SQLITE_OK)
+        {
 
             std::string mensagem = sqlite3_errmsg(banco);
             sqlite3_finalize(comando);
@@ -237,14 +242,14 @@ public:
 
         resultado = sqlite3_step(comando);
 
-        if (resultado != SQLITE_DONE) {
+        if (resultado != SQLITE_DONE)
+        {
 
             std::string mensagem = sqlite3_errmsg(banco);
             sqlite3_finalize(comando);
 
             throw std::runtime_error(
-                "Erro ao inserir cartao: " + mensagem
-            );
+                "Erro ao inserir cartao: " + mensagem);
         }
 
         sqlite3_finalize(comando);
@@ -253,28 +258,29 @@ public:
     /**
      * @brief Consulta um cartão pelo identificador.
      */
-    CartaoAtividade consultar(const Identificador& identificador) {
+    CartaoAtividade consultar(const Identificador &identificador)
+    {
 
         std::string sql = std::string(consultaCompleta()) +
                           " WHERE identificador = ?;";
 
-        sqlite3_stmt* comando = nullptr;
+        sqlite3_stmt *comando = nullptr;
 
         int resultado = sqlite3_prepare_v2(
-            banco, sql.c_str(), -1, &comando, nullptr
-        );
+            banco, sql.c_str(), -1, &comando, nullptr);
 
-        if (resultado != SQLITE_OK) {
+        if (resultado != SQLITE_OK)
+        {
             throw std::runtime_error(sqlite3_errmsg(banco));
         }
 
         resultado = sqlite3_bind_text(
             comando, 1,
             identificador.getIdentificador().c_str(),
-            -1, SQLITE_TRANSIENT
-        );
+            -1, SQLITE_TRANSIENT);
 
-        if (resultado != SQLITE_OK) {
+        if (resultado != SQLITE_OK)
+        {
             std::string mensagem = sqlite3_errmsg(banco);
             sqlite3_finalize(comando);
             throw std::runtime_error(mensagem);
@@ -282,11 +288,12 @@ public:
 
         resultado = sqlite3_step(comando);
 
-        if (resultado != SQLITE_ROW) {
+        if (resultado != SQLITE_ROW)
+        {
 
             std::string mensagem = resultado == SQLITE_DONE
-                ? "Cartao nao encontrado."
-                : sqlite3_errmsg(banco);
+                                       ? "Cartao nao encontrado."
+                                       : sqlite3_errmsg(banco);
 
             sqlite3_finalize(comando);
             throw std::runtime_error(mensagem);
@@ -302,27 +309,30 @@ public:
     /**
      * @brief Lista todos os cartões cadastrados.
      */
-    std::vector<CartaoAtividade> listar() {
+    std::vector<CartaoAtividade> listar()
+    {
 
         std::string sql = std::string(consultaCompleta()) + ";";
 
-        sqlite3_stmt* comando = nullptr;
+        sqlite3_stmt *comando = nullptr;
 
         int resultado = sqlite3_prepare_v2(
-            banco, sql.c_str(), -1, &comando, nullptr
-        );
+            banco, sql.c_str(), -1, &comando, nullptr);
 
-        if (resultado != SQLITE_OK) {
+        if (resultado != SQLITE_OK)
+        {
             throw std::runtime_error(sqlite3_errmsg(banco));
         }
 
         std::vector<CartaoAtividade> cartoes;
 
-        while ((resultado = sqlite3_step(comando)) == SQLITE_ROW) {
+        while ((resultado = sqlite3_step(comando)) == SQLITE_ROW)
+        {
             cartoes.push_back(construirEntidade(comando));
         }
 
-        if (resultado != SQLITE_DONE) {
+        if (resultado != SQLITE_DONE)
+        {
 
             std::string mensagem = sqlite3_errmsg(banco);
             sqlite3_finalize(comando);
@@ -338,70 +348,72 @@ public:
     /**
      * @brief Atualiza os dados de um cartão sem alterar sua chave primária.
      */
-    void atualizar(const CartaoAtividade& cartao) {
+    void atualizar(const CartaoAtividade &cartao)
+    {
 
-        const char* sql =
+        const char *sql =
             "UPDATE CartoesAtividades SET "
             "nome = ?, descricao = ?, prioridade = ?, estado = ?, "
             "tamanho = ?, entrada = ?, inicio = ?, termino = ?, "
             "desenvolvedor = ?, quadro = ? "
             "WHERE identificador = ?;";
 
-        sqlite3_stmt* comando = nullptr;
+        sqlite3_stmt *comando = nullptr;
 
         int resultado = sqlite3_prepare_v2(
-            banco, sql, -1, &comando, nullptr
-        );
+            banco, sql, -1, &comando, nullptr);
 
-        if (resultado != SQLITE_OK) {
+        if (resultado != SQLITE_OK)
+        {
             throw std::runtime_error(sqlite3_errmsg(banco));
         }
 
         resultado = sqlite3_bind_text(comando, 1,
-            cartao.getNome().getNome().c_str(), -1, SQLITE_TRANSIENT);
+                                      cartao.getNome().getNome().c_str(), -1, SQLITE_TRANSIENT);
 
         if (resultado == SQLITE_OK)
             resultado = sqlite3_bind_text(comando, 2,
-                cartao.getDescricao().getTexto().c_str(), -1, SQLITE_TRANSIENT);
+                                          cartao.getDescricao().getTexto().c_str(), -1, SQLITE_TRANSIENT);
 
         if (resultado == SQLITE_OK)
             resultado = sqlite3_bind_text(comando, 3,
-                cartao.getPrioridade().getPrioridade().c_str(), -1, SQLITE_TRANSIENT);
+                                          cartao.getPrioridade().getPrioridade().c_str(), -1, SQLITE_TRANSIENT);
 
         if (resultado == SQLITE_OK)
             resultado = sqlite3_bind_text(comando, 4,
-                cartao.getEstado().getEstado().c_str(), -1, SQLITE_TRANSIENT);
+                                          cartao.getEstado().getEstado().c_str(), -1, SQLITE_TRANSIENT);
 
         if (resultado == SQLITE_OK)
             resultado = sqlite3_bind_text(comando, 5,
-                cartao.getTamanho().getTamanho().c_str(), -1, SQLITE_TRANSIENT);
+                                          cartao.getTamanho().getTamanho().c_str(), -1, SQLITE_TRANSIENT);
 
         if (resultado == SQLITE_OK)
             resultado = sqlite3_bind_text(comando, 6,
-                cartao.getEntrada().getTimestamp().c_str(), -1, SQLITE_TRANSIENT);
+                                          cartao.getEntrada().getTimestamp().c_str(), -1, SQLITE_TRANSIENT);
 
         if (resultado == SQLITE_OK)
             resultado = sqlite3_bind_text(comando, 7,
-                cartao.getInicio().getTimestamp().c_str(), -1, SQLITE_TRANSIENT);
+                                          cartao.getInicio().getTimestamp().c_str(), -1, SQLITE_TRANSIENT);
 
         if (resultado == SQLITE_OK)
             resultado = sqlite3_bind_text(comando, 8,
-                cartao.getTermino().getTimestamp().c_str(), -1, SQLITE_TRANSIENT);
+                                          cartao.getTermino().getTimestamp().c_str(), -1, SQLITE_TRANSIENT);
 
         if (resultado == SQLITE_OK)
             resultado = sqlite3_bind_text(comando, 9,
-                cartao.getDesenvolvedor().getEmail().c_str(), -1, SQLITE_TRANSIENT);
+                                          cartao.getDesenvolvedor().getEmail().c_str(), -1, SQLITE_TRANSIENT);
 
         if (resultado == SQLITE_OK)
             resultado = sqlite3_bind_text(comando, 10,
-                cartao.getQuadro().getIdentificador().c_str(), -1, SQLITE_TRANSIENT);
+                                          cartao.getQuadro().getIdentificador().c_str(), -1, SQLITE_TRANSIENT);
 
         if (resultado == SQLITE_OK)
             resultado = sqlite3_bind_text(comando, 11,
-                cartao.getIdentificador().getIdentificador().c_str(),
-                -1, SQLITE_TRANSIENT);
+                                          cartao.getIdentificador().getIdentificador().c_str(),
+                                          -1, SQLITE_TRANSIENT);
 
-        if (resultado != SQLITE_OK) {
+        if (resultado != SQLITE_OK)
+        {
 
             std::string mensagem = sqlite3_errmsg(banco);
             sqlite3_finalize(comando);
@@ -410,52 +422,53 @@ public:
 
         resultado = sqlite3_step(comando);
 
-        if (resultado != SQLITE_DONE) {
+        if (resultado != SQLITE_DONE)
+        {
 
             std::string mensagem = sqlite3_errmsg(banco);
             sqlite3_finalize(comando);
 
             throw std::runtime_error(
-                "Erro ao atualizar cartao: " + mensagem
-            );
+                "Erro ao atualizar cartao: " + mensagem);
         }
 
         int alteracoes = sqlite3_changes(banco);
 
         sqlite3_finalize(comando);
 
-        if (alteracoes == 0) {
+        if (alteracoes == 0)
+        {
             throw std::runtime_error(
-                "Cartao nao encontrado para atualizacao."
-            );
+                "Cartao nao encontrado para atualizacao.");
         }
     }
 
     /**
      * @brief Remove um cartão pelo identificador.
      */
-    void remover(const Identificador& identificador) {
+    void remover(const Identificador &identificador)
+    {
 
-        const char* sql =
+        const char *sql =
             "DELETE FROM CartoesAtividades WHERE identificador = ?;";
 
-        sqlite3_stmt* comando = nullptr;
+        sqlite3_stmt *comando = nullptr;
 
         int resultado = sqlite3_prepare_v2(
-            banco, sql, -1, &comando, nullptr
-        );
+            banco, sql, -1, &comando, nullptr);
 
-        if (resultado != SQLITE_OK) {
+        if (resultado != SQLITE_OK)
+        {
             throw std::runtime_error(sqlite3_errmsg(banco));
         }
 
         resultado = sqlite3_bind_text(
             comando, 1,
             identificador.getIdentificador().c_str(),
-            -1, SQLITE_TRANSIENT
-        );
+            -1, SQLITE_TRANSIENT);
 
-        if (resultado != SQLITE_OK) {
+        if (resultado != SQLITE_OK)
+        {
 
             std::string mensagem = sqlite3_errmsg(banco);
             sqlite3_finalize(comando);
@@ -464,21 +477,22 @@ public:
 
         resultado = sqlite3_step(comando);
 
-        if (resultado != SQLITE_DONE) {
+        if (resultado != SQLITE_DONE)
+        {
 
             std::string mensagem = sqlite3_errmsg(banco);
             sqlite3_finalize(comando);
 
             throw std::runtime_error(
-                "Erro ao remover cartao: " + mensagem
-            );
+                "Erro ao remover cartao: " + mensagem);
         }
 
         int alteracoes = sqlite3_changes(banco);
 
         sqlite3_finalize(comando);
 
-        if (alteracoes == 0) {
+        if (alteracoes == 0)
+        {
             throw std::runtime_error("Cartao nao encontrado.");
         }
     }
@@ -490,33 +504,34 @@ public:
      * @param momento Timestamp da movimentação.
      */
     void mover(
-        const Identificador& identificador,
-        const Estado& novoEstado,
-        const Timestamp& momento
-    ) {
+        const Identificador &identificador,
+        const Estado &novoEstado,
+        const Timestamp &momento)
+    {
 
         CartaoAtividade cartao = consultar(identificador);
 
         std::string estadoAtual = cartao.getEstado().getEstado();
         std::string estadoDestino = novoEstado.getEstado();
 
-        if (estadoAtual == "A FAZER" && estadoDestino == "FAZENDO") {
+        if (estadoAtual == "A FAZER" && estadoDestino == "FAZENDO")
+        {
 
             cartao.setEstado(novoEstado);
             cartao.setInicio(momento);
-
-        } else if (
-            estadoAtual == "FAZENDO" && estadoDestino == "FEITO"
-        ) {
+        }
+        else if (
+            estadoAtual == "FAZENDO" && estadoDestino == "FEITO")
+        {
 
             cartao.setEstado(novoEstado);
             cartao.setTermino(momento);
-
-        } else {
+        }
+        else
+        {
 
             throw std::invalid_argument(
-                "Movimentacao nao permitida."
-            );
+                "Movimentacao nao permitida.");
         }
 
         atualizar(cartao);

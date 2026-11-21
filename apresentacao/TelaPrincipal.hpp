@@ -171,6 +171,19 @@ public:
         std::cout << "0 - Voltar ao menu principal\n";
         std::cout << "Escolha uma opcao: ";
     }
+    void exibirMenuCartoes() const
+    {
+        std::cout << "\n========== CARTOES DE ATIVIDADE ==========\n";
+        std::cout << "1 - Cadastrar cartao\n";
+        std::cout << "2 - Consultar cartao\n";
+        std::cout << "3 - Listar cartoes\n";
+        std::cout << "4 - Atualizar cartao\n";
+        std::cout << "5 - Remover cartao\n";
+        std::cout << "6 - Mover cartao\n";
+        std::cout << "7 - Indicadores do quadro\n";
+        std::cout << "0 - Voltar\n";
+        std::cout << "Escolha uma opcao: ";
+    }
 };
 
 #endif

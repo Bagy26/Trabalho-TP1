@@ -206,8 +206,18 @@ public:
                 "Utilize o metodo mover para alterar o estado.");
         }
 
-        repositorio.atualizar(cartao);
+        // Preserva os dados que nao podem ser alterados.
+        CartaoAtividade atualizado = atual;
+
+        atualizado.setNome(cartao.getNome());
+        atualizado.setDescricao(cartao.getDescricao());
+        atualizado.setPrioridade(cartao.getPrioridade());
+        atualizado.setTamanho(cartao.getTamanho());
+        atualizado.setDesenvolvedor(cartao.getDesenvolvedor());
+
+        repositorio.atualizar(atualizado);
     }
+
     void remover(const Identificador &identificador) override
     {
         repositorio.remover(identificador);
